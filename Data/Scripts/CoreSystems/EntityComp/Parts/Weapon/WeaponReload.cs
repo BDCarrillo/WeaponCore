@@ -1,5 +1,8 @@
 ﻿using System;
 using CoreSystems.Support;
+using Sandbox.Game.Entities;
+using Sandbox.ModAPI;
+using VRage.Utils;
 using VRageMath;
 using static CoreSystems.Support.CoreComponent;
 using static CoreSystems.Support.WeaponDefinition.AnimationDef.PartAnimationSetDef;
@@ -190,39 +193,50 @@ namespace CoreSystems.Platform
             var isPhantom = Comp.TypeSpecific == CompTypeSpecific.Phantom;
 
             if (!Comp.IsWorking || !ActiveAmmoDef.AmmoDef.Const.Reloadable || !Comp.HasInventory && !isPhantom) return false;
+            var outOfAmmo = ProtoWeaponAmmo.CurrentAmmo == 0;
 
-            if (!ActiveAmmoDef.AmmoDef.Const.EnergyAmmo && !isPhantom)
+            if (!s.IsCreative && !ActiveAmmoDef.AmmoDef.Const.EnergyAmmo && !isPhantom)
             {
-                if (!s.IsCreative)
-                {
-                    Comp.CurrentInventoryVolume = (float)Comp.CoreInventory.CurrentVolume;
-                    var freeVolume = System.MaxAmmoVolume - Comp.CurrentInventoryVolume;
-                    var spotsFree = (int)(freeVolume / ActiveAmmoDef.AmmoDef.Const.MagVolume);
-                    Reload.CurrentMags = Comp.CoreInventory.GetItemAmount(ActiveAmmoDef.AmmoDefinitionId).ToIntSafe();
-                    CurrentAmmoVolume = Reload.CurrentMags * ActiveAmmoDef.AmmoDef.Const.MagVolume;
+                Reload.CurrentMags = Comp.CoreInventory.GetItemAmount(ActiveAmmoDef.AmmoDefinitionId).ToIntSafe();
+                CurrentAmmoVolume = Reload.CurrentMags * ActiveAmmoDef.AmmoDef.Const.MagVolume;
+                Comp.CurrentInventoryVolume = (float)Comp.CoreInventory.CurrentVolume;
 
-                    var magsRequested = (int)((System.FullAmmoVolume - CurrentAmmoVolume) / ActiveAmmoDef.AmmoDef.Const.MagVolume);
+                var invEmpty = Reload.CurrentMags == 0;
+                var invLow = CurrentAmmoVolume < System.LowAmmoVolume;
+                var invNotFull = CurrentAmmoVolume < System.FullAmmoVolume;
+                var timed = NextInventoryTick <= Session.I.Tick;
+                var topUp = !invLow && !invEmpty && timed;
+                var check = invNotFull && (outOfAmmo || invEmpty || topUp || invLow) && (timed || calledFromReload || CheckInventorySystem);
+                //Log.Line($"Check: {check} {invNotFull} {outOfAmmo} {invEmpty} {topUp} {invLow} {timed} {calledFromReload} {CheckInventorySystem}");
+                if (check && !s.PartToPullConsumable.ContainsKey(this))
+                {
+                    //Log.Line($"ComputeServerStorage check {check} topUp {topUp} calledFromReload {calledFromReload} CheckInventorySystem {CheckInventorySystem}");
+                    var freeVolume = System.MaxAmmoVolume - Comp.CurrentInventoryVolume;
+                    var spotsFree = (int)(freeVolume / ActiveAmmoDef.AmmoDef.Const.MagVolume + .0001f);
+                    var protoCap = ProtoWeaponAmmo.CurrentAmmo == 0 ? ActiveAmmoDef.AmmoDef.Const.MagsToLoad : 0;
+                    var magsRequested = (int)((System.FullAmmoVolume - CurrentAmmoVolume) / ActiveAmmoDef.AmmoDef.Const.MagVolume + .0001f) + protoCap;
                     var magsGranted = magsRequested > spotsFree ? spotsFree : magsRequested;
                     var requestedVolume = ActiveAmmoDef.AmmoDef.Const.MagVolume * magsGranted;
-                    var spaceAvailable = freeVolume > requestedVolume;
-                    var lowThreshold = System.MaxAmmoVolume * 0.25f;
+                    var spaceAvailable = freeVolume >= requestedVolume;
+                    var pullAmmo = magsGranted > 0 && spaceAvailable;
+                    //Log.Line($"Checking in ComputeServerStorage {Session.I.Tick} pullAmmo{pullAmmo} magsGranted{magsGranted} protoCap{protoCap}");
 
-                    var pullAmmo = magsGranted > 0 && CurrentAmmoVolume < lowThreshold && spaceAvailable;
-                    
-                    var failSafeTimer = s.Tick - LastInventoryTick > 600;
-                    
-                    if (pullAmmo && (CheckInventorySystem || failSafeTimer && Comp.Ai.Construct.RootAi.Construct.OutOfAmmoWeapons.Contains(this)) && s.PartToPullConsumable.TryAdd(this, byte.MaxValue)) {
-
-                        CheckInventorySystem = false;
-                        LastInventoryTick = s.Tick;
-                        s.GridsToUpdateInventories.Add(Comp.Ai);
+                    if (pullAmmo)
+                    {
+                        var added = s.PartToPullConsumable.TryAdd(this, topUp && magsRequested > 1 ? 0 : magsGranted);
+                        //Log.Line("ComputeServerStorage pullAmmo true, tryadd to parttopullconsumable " + added);
                     }
-                    else if (CheckInventorySystem && failSafeTimer && !s.PartToPullConsumable.ContainsKey(this))
-                        CheckInventorySystem = false;
+                    else //no space
+                    {
+                        NextInventoryTick = int.MaxValue;
+                        //Log.Line($"ComputeServerStorage pullAmmo false magsGranted{magsGranted} spaceAvailable{spaceAvailable} ");
+                    }
+
+                    //LastInventoryTick = s.Tick;
                 }
+                CheckInventorySystem = false;
             }
 
-            var outOfAmmo = ProtoWeaponAmmo.CurrentAmmo == 0;
             var sendHome = System.GoHomeToReload && !IsHome;
 
             if (outOfAmmo) {
@@ -277,6 +291,8 @@ namespace CoreSystems.Platform
                     {
                         Comp.CoreInventory.Remove(ActiveAmmoDef.AmmoDef.Const.AmmoItem, Reload.MagsLoaded);
                     }
+                    Log.Line("CONSUMED AMMO");
+                    Session.I.PartToPullConsumable.TryAdd(this, Reload.MagsLoaded);
                 }
 
                 Reload.CurrentMags = !isPhantom ? Comp.CoreInventory.GetItemAmount(ActiveAmmoDef.AmmoDefinitionId).ToIntSafe() : Reload.CurrentMags - Reload.MagsLoaded;

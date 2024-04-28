@@ -157,17 +157,6 @@ namespace CoreSystems.Support
                     {
                         inventory.InventoryContentChanged += CheckAmmoInventory;
                         Construct.RootAi.Construct.NewInventoryDetected = true;
-
-                        int monitors;
-                        if (!Session.I.InventoryMonitors.TryGetValue(inventory, out monitors))
-                        {
-
-                            Session.I.InventoryMonitors[inventory] = 0;
-                            Session.I.InventoryItems[inventory] = Session.I.PhysicalItemListPool.Get();
-                            Session.I.ConsumableItemList[inventory] = Session.I.BetterItemsListPool.Get();
-                        }
-                        else
-                            Session.I.InventoryMonitors[inventory] = monitors + 1;
                     }
                 }
             }
@@ -247,29 +236,9 @@ namespace CoreSystems.Support
         private bool InventoryRemove(MyEntity entity, MyInventory inventory)
         {
             MyInventory oldInventory;
-            if (InventoryMonitor.TryRemove(entity, out oldInventory)) {
-
+            if (InventoryMonitor.TryRemove(entity, out oldInventory)) 
+            {
                 inventory.InventoryContentChanged -= CheckAmmoInventory;
-
-                int monitors;
-                if (Session.I.InventoryMonitors.TryGetValue(inventory, out monitors)) {
-
-                    if (--monitors < 0) {
-
-                        MyConcurrentList<MyPhysicalInventoryItem> removedPhysical;
-                        MyConcurrentList<Session.BetterInventoryItem> removedBetter;
-
-                        if (Session.I.InventoryItems.TryRemove(inventory, out removedPhysical))
-                            Session.I.PhysicalItemListPool.Return(removedPhysical);
-
-                        if (Session.I.ConsumableItemList.TryRemove(inventory, out removedBetter))
-                            Session.I.BetterItemsListPool.Return(removedBetter);
-
-                        Session.I.InventoryMonitors.Remove(inventory);
-                    }
-                    else Session.I.InventoryMonitors[inventory] = monitors;
-                }
-                else return false;
             }
             return true;
         }

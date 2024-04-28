@@ -51,20 +51,6 @@ namespace CoreSystems.Support
                 else
                 {
                     CoreInventory.InventoryContentChanged += OnContentsChanged;
-                    I.CoreInventoryItems[CoreInventory] = new ConcurrentDictionary<uint, BetterInventoryItem>();
-                    I.ConsumableItemList[CoreInventory] = I.BetterItemsListPool.Get();
-
-                    var items = CoreInventory.GetItems();
-                    for (int i = 0; i < items.Count; i++)
-                    {
-                        var bItem = I.BetterInventoryItems.Get();
-                        var item = items[i];
-                        bItem.Amount = (int)item.Amount;
-                        bItem.Item = item;
-                        bItem.Content = item.Content;
-
-                        I.CoreInventoryItems[CoreInventory][items[i].ItemId] = bItem;
-                    }
                 }
             }
             else
@@ -99,19 +85,6 @@ namespace CoreSystems.Support
                     else
                     {
                         CoreInventory.InventoryContentChanged -= OnContentsChanged;
-                        ConcurrentDictionary<uint, BetterInventoryItem> removedItems;
-                        MyConcurrentList<BetterInventoryItem> removedList;
-
-                        if (I.CoreInventoryItems.TryRemove(CoreInventory, out removedItems))
-                        {
-                            foreach (var inventoryItems in removedItems)
-                                I.BetterInventoryItems.Return(inventoryItems.Value);
-
-                            removedItems.Clear();
-                        }
-
-                        if (I.ConsumableItemList.TryRemove(CoreInventory, out removedList))
-                            I.BetterItemsListPool.Return(removedList);
                     }
                 }
             }
@@ -119,37 +92,13 @@ namespace CoreSystems.Support
 
         private void OnContentsChanged(MyInventoryBase inv, MyPhysicalInventoryItem item, MyFixedPoint amount)
         {
-            BetterInventoryItem cachedItem;
-            if (!I.CoreInventoryItems[CoreInventory].TryGetValue(item.ItemId, out cachedItem))
-            {
-                cachedItem = I.BetterInventoryItems.Get();
-                cachedItem.Amount = (int)amount;
-                cachedItem.Content = item.Content;
-                cachedItem.Item = item;
-                I.CoreInventoryItems[CoreInventory].TryAdd(item.ItemId, cachedItem);
-            }
-            else if (cachedItem.Amount + amount > 0)
-            {
-                cachedItem.Amount += (int)amount;
-            }
-            else if (cachedItem.Amount + amount <= 0)
-            {
-                BetterInventoryItem removedItem;
-                if (I.CoreInventoryItems[CoreInventory].TryRemove(item.ItemId, out removedItem))
-                    I.BetterInventoryItems.Return(removedItem);
-            }
             var collection = TypeSpecific != CompTypeSpecific.Phantom ? Platform.Weapons : Platform.Phantoms;
-            if (I.IsServer && amount <= 0) {
+            if (I.IsServer && amount <= 0)
+            {
                 for (int i = 0; i < collection.Count; i++)
                     collection[i].CheckInventorySystem = true;
             }
         }
-
-        private static void OnMarkForClose(MyEntity myEntity)
-        {
-            
-        }
-
 
         private void IsWorkingChanged(MyCubeBlock myCubeBlock)
         {

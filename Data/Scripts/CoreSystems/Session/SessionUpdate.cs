@@ -205,11 +205,12 @@ namespace CoreSystems
                     for (int j = 0; j < pComp.Platform.Phantoms.Count; j++)
                     {
                         var p = pComp.Platform.Phantoms[j];
-                        if (p.ActiveAmmoDef.AmmoDef.Const.Reloadable && !p.Loading) { 
+                        if (p.ActiveAmmoDef.AmmoDef.Const.Reloadable && !p.Loading) {
 
                             if (IsServer && (p.ProtoWeaponAmmo.CurrentAmmo == 0 || p.CheckInventorySystem))
                                 p.ComputeServerStorage();
-                            else if (IsClient) {
+                            else if (IsClient)
+                            {
 
                                 if (p.ClientReloading && p.Reload.EndId > p.ClientEndId && p.Reload.StartId == p.ClientStartId)
                                     p.Reloaded();
@@ -557,8 +558,10 @@ namespace CoreSystems
 
                             if (IsServer)
                             {
-                                if (w.ProtoWeaponAmmo.CurrentAmmo == 0 || w.CheckInventorySystem)
+                                if (w.ProtoWeaponAmmo.CurrentAmmo == 0 || w.CheckInventorySystem || w.NextInventoryTick <= Tick)
+                                {
                                     w.ComputeServerStorage();
+                                }
                             }
                             else if (IsClient)
                             {

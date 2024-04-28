@@ -702,6 +702,7 @@ namespace CoreSystems.Support
                 {
                     if (RecentItems.Contains(w.ActiveAmmoDef.AmmoDefinitionId))
                         w.CheckInventorySystem = true;
+                    w.InventoryChecks = 0;
                 }
                 RecentItems.Clear();
             }

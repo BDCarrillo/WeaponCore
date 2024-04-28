@@ -152,8 +152,10 @@ namespace CoreSystems.Platform
         internal uint AnimationDelayTick;
         internal uint TrackingDelayTick;
         internal uint LastHeatUpdateTick;
-        internal uint LastInventoryTick;
+        internal uint NextInventoryTick;
         internal uint StopBarrelAvTick;
+        internal uint InventoryChecks;
+        internal uint MaxLoadMags;
         internal int LiveSmarts;
         internal int ProposedAmmoId = -1;
         internal int ShootCount;

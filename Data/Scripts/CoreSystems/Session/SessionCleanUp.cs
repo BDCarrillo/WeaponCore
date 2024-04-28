@@ -230,10 +230,6 @@ namespace CoreSystems
             DsUtil.Purge();
             DsUtil2.Purge();
             ProblemRep.Clean();
-
-            PhysicalItemListPool.Clean();
-            BetterItemsListPool.Clean();
-            BetterInventoryItems.Clean();
             PowerGroups.Clear();
             KeyMap.Clear();
             LosDebugList.Clear();

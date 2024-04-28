@@ -234,6 +234,7 @@ namespace CoreSystems.Support
         public readonly float MaxTargetRadius;
         public readonly float MaxAmmoVolume;
         public readonly float FullAmmoVolume;
+        public readonly float LowAmmoVolume;
         public readonly float FiringSoundDistSqr;
         public readonly float ReloadSoundDistSqr;
         public readonly float BarrelSoundDistSqr;
@@ -280,7 +281,8 @@ namespace CoreSystems.Support
             PartName = partName;
             AmmoTypes = weaponAmmoTypes;
             MaxAmmoVolume = Values.HardPoint.HardWare.InventorySize;
-            FullAmmoVolume = MaxAmmoVolume * 0.75f;
+            FullAmmoVolume = MaxAmmoVolume * (values.HardPoint.Loading.InventoryFillAmount > 0 ? values.HardPoint.Loading.InventoryFillAmount : 0.75f);
+            LowAmmoVolume = MaxAmmoVolume * (values.HardPoint.Loading.InventoryLowAmount > 0 ? values.HardPoint.Loading.InventoryLowAmount : 0.25f);
             CeaseFireDelay = values.HardPoint.DelayCeaseFire;
             DelayCeaseFire = CeaseFireDelay > 0;
             DelayToFire = values.HardPoint.Loading.DelayUntilFire;
