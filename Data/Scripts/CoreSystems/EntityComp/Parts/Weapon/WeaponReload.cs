@@ -291,7 +291,7 @@ namespace CoreSystems.Platform
                     {
                         Comp.CoreInventory.Remove(ActiveAmmoDef.AmmoDef.Const.AmmoItem, Reload.MagsLoaded);
                     }
-                    Log.Line("CONSUMED AMMO");
+                    //Log.Line("CONSUMED AMMO");
                     Session.I.PartToPullConsumable.TryAdd(this, Reload.MagsLoaded);
                 }
 
