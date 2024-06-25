@@ -768,7 +768,7 @@ namespace CoreSystems.Projectiles
             var speedCap = speedCapMulti * MaxSpeed;
             if (aConst.AmmoUseDrag)
             {
-                var proposedCap = speedCap -= Info.Age * 0.25f;
+                var proposedCap = speedCap -= Info.Age * aConst.DragPerTick;
                 if (proposedCap <= 0)
                     proposedCap = 0;
             }

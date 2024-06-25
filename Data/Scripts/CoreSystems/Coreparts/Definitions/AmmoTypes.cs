@@ -49,7 +49,7 @@ namespace Scripts
                     Inaccuracy = 0f, // 0 is perfect, hit accuracy will be a random num of meters between 0 and this value.
                     Aggressiveness = 1f, // controls how responsive tracking is.
                     MaxLateralThrust = 0.5, // controls how sharp the trajectile may turn
-                    DragPerSecond = 10f, // Amount of drag (m/s) deducted from the projectiles speed multiplied by age.
+                    DragPerSecond = 10f, // Amount of drag (m/s) deducted from the projectile's speed, multiplied by age.  Will not go below zero/negative
                 },
             },
             AmmoGraphics = new GraphicDef
