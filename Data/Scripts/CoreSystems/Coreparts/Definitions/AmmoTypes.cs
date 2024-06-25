@@ -30,6 +30,47 @@ namespace Scripts
 { // Don't edit above this line
     partial class Parts
     {
+        private AmmoDef DragTest => new AmmoDef
+        {
+            AmmoMagazine = "Energy",
+            AmmoRound = "DragTest",
+            BaseDamage = 100,
+            NoGridOrArmorScaling = true,
+            Trajectory = new TrajectoryDef
+            {
+                Guidance = Smart, 
+                MaxLifeTime = 300,
+                AccelPerSec = 0, 
+                DesiredSpeed = 0, // this is additive to the original projectile vel since we're not dropping velocity
+                MaxTrajectory = 2000f, // Max Distance the projectile or beam can Travel.
+                Smarts = new SmartsDef
+                {
+                    OverideTarget = true,
+                    Inaccuracy = 0f, // 0 is perfect, hit accuracy will be a random num of meters between 0 and this value.
+                    Aggressiveness = 1f, // controls how responsive tracking is.
+                    MaxLateralThrust = 0.5, // controls how sharp the trajectile may turn
+                    DragPerSecond = 10f, // Amount of drag (m/s) deducted from the projectiles speed multiplied by age.
+                },
+            },
+            AmmoGraphics = new GraphicDef
+            {
+                VisualProbability = 1f,
+                Lines = new LineDef
+                {
+                    Tracer = new TracerBaseDef
+                    {
+                        Enable = true,
+                        Length = 20f,
+                        Width = 0.1f,
+                        Color = Color(red: 50, green: 2, blue: 1f, alpha: 1),
+                        Textures = new[] { "ProjectileTrailLine", },
+                    },
+                },
+            },
+        };
+
+
+
         private AmmoDef SpotLight => new AmmoDef
         {
             AmmoMagazine = "Energy",
@@ -2508,8 +2549,8 @@ namespace Scripts
             },
             Fragment = new FragmentDef // Formerly known as Shrapnel. Spawns specified ammo fragments on projectile death (via hit or detonation).
             {
-                AmmoRound = "", // AmmoRound field of the ammo to spawn.
-                Fragments = 0, // Number of projectiles to spawn.
+                AmmoRound = "DragTest", // AmmoRound field of the ammo to spawn.
+                Fragments = 1, // Number of projectiles to spawn.
                 Degrees = 0, // Cone in which to randomize direction of spawned projectiles.
                 Reverse = false, // Spawn projectiles backward instead of forward.
                 DropVelocity = false, // fragments will not inherit velocity from parent.
@@ -2518,19 +2559,6 @@ namespace Scripts
                 MaxChildren = 0, // number of maximum branches for fragments from the roots point of view, 0 is unlimited
                 IgnoreArming = true, // If true, ignore ArmOnHit or MinArmingTime in EndOfLife definitions
                 AdvOffset = Vector(x: 0, y: 0, z: 0), // advanced offsets the fragment by xyz coordinates relative to parent, value is read from fragment ammo type.
-                TimedSpawns = new TimedSpawnDef // disables FragOnEnd in favor of info specified below
-                {
-                    Enable = false, // Enables TimedSpawns mechanism
-                    Interval = 0, // Time between spawning fragments, in ticks, 0 means every tick, 1 means every other
-                    StartTime = 0, // Time delay to start spawning fragments, in ticks, of total projectile life
-                    MaxSpawns = 1, // Max number of fragment children to spawn
-                    Proximity = 1000, // Starting distance from target bounding sphere to start spawning fragments, 0 disables this feature.  No spawning outside this distance
-                    ParentDies = true, // Parent dies once after it spawns its last child.
-                    PointAtTarget = true, // Start fragment direction pointing at Target
-                    PointType = Predict, // Point accuracy, Direct, Lead (always fire), Predict (only fire if it can hit)
-                    GroupSize = 5, // Number of spawns in each group
-                    GroupDelay = 120, // Delay between each group.
-                },
             },
             Pattern = new PatternDef
             {
@@ -2717,8 +2745,8 @@ namespace Scripts
                 TargetLossTime = 0, // 0 is disabled, Measured in game ticks (6 = 100ms, 60 = 1 seconds, etc..).
                 MaxLifeTime = 600, // 0 is disabled, Measured in game ticks (6 = 100ms, 60 = 1 seconds, etc..). time begins at 0 and time must EXCEED this value to trigger "time > maxValue". Please have a value for this, It stops Bad things.
                 AccelPerSec = 0f, // Meters Per Second. This is the spawning Speed of the Projectile, and used by turning.
-                DesiredSpeed = 500, // voxel phasing if you go above 5100
-                MaxTrajectory = 2000f, // Max Distance the projectile or beam can Travel.
+                DesiredSpeed = 100, // voxel phasing if you go above 5100
+                MaxTrajectory = 200f, // Max Distance the projectile or beam can Travel.
                 DeaccelTime = 0, // 0 is disabled, a value causes the projectile to come to rest overtime, (Measured in game ticks, 60 = 1 second)
                 GravityMultiplier = 0.5f, // Gravity multiplier, influences the trajectory of the projectile, value greater than 0 to enable. Natural Gravity Only.
                 SpeedVariance = Random(start: 0, end: 0), // subtracts value from DesiredSpeed. Be warned, you can make your projectile go backwards.

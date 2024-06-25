@@ -4,6 +4,7 @@ using System.Diagnostics;
 using CoreSystems.Support;
 using Jakaria.API;
 using Sandbox.Game.Entities;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Ingame;
 using VRage.Game;
 using VRage.Game.Components;
@@ -481,6 +482,8 @@ namespace CoreSystems.Projectiles
                 startTrack = aConst.NoTargetApproach || !new MyOrientedBoundingBoxD(coreParent.PositionComp.LocalAABB, coreParent.PositionComp.WorldMatrixRef).Intersects(ref lineCheck).HasValue;
             }
 
+            MyAPIGateway.Utilities.ShowNotification("Speed: " + (int)Velocity.Length() + "  " + aConst.AmmoUseDrag, 16);
+
             if (startTrack)
             {
                 s.SmartReady = true;
@@ -763,6 +766,12 @@ namespace CoreSystems.Projectiles
                 MaxSpeed = DesiredSpeed;
 
             var speedCap = speedCapMulti * MaxSpeed;
+            if (aConst.AmmoUseDrag)
+            {
+                var proposedCap = speedCap -= Info.Age * 0.25f;
+                if (proposedCap <= 0)
+                    proposedCap = 0;
+            }
             if (VelocityLengthSqr > speedCap * speedCap) {
                 VelocityLengthSqr = proposedVel.LengthSquared();
                 proposedVel = Direction * speedCap;
@@ -771,6 +780,7 @@ namespace CoreSystems.Projectiles
                 Info.TotalAcceleration += (proposedVel - PrevVelocity);
 
             PrevVelocity = Velocity;
+
             if (Info.TotalAcceleration.LengthSquared() > aConst.MaxAccelerationSqr)
                 proposedVel = Velocity;
 

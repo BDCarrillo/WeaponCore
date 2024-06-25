@@ -178,7 +178,7 @@ namespace Scripts {
                 },
             },
             Ammos = new[] {
-                ArtilleryShell, // Must list all primary, shrapnel, and pattern ammos.
+                ArtilleryShell, DragTest // Must list all primary, shrapnel, and pattern ammos.
             },
             //Animations = Weapon75_Animation,
             //Upgrades = UpgradeModules,
