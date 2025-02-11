@@ -40,6 +40,16 @@ namespace CoreSystems
                 var noDamageProjectile = ammoDef.BaseDamage <= 0;
                 var lastIndex = info.HitList.Count - 1;
 
+                //
+                Log.Line($"ProcessHits");
+                if (info.HitList.Count > 1)
+                    info.BlockList.Sort((b, a) => b.Value.CompareTo(a.Value));
+
+                foreach (var block in info.BlockList)
+                {
+                    Log.Line($"Blk: {block.Key.BlockDefinition.DisplayNameText} {block.Value} {block.Key.CubeGrid.DisplayName}");
+                }
+
                 if (!info.DoDamage && IsServer)
                     info.BaseDamagePool = 0;
 
@@ -356,7 +366,7 @@ namespace CoreSystems
                 hitEnt.Blocks?.Clear();
                 return;
             }
-            
+            Log.Line($"Running damage on grid {grid.DisplayName} blocks {hitEnt.Blocks.Count}");
             if (t.AmmoDef.DamageScales.Shields.Type == ShieldDef.ShieldType.Heal || (!t.AmmoDef.Const.SelfDamage && !t.AmmoDef.Const.IsCriticalReaction && !t.Storage.SmartReady) && t.Ai.AiType == Ai.AiTypes.Grid && t.Ai.GridEntity.IsInSameLogicalGroupAs(grid) || !grid.DestructibleBlocks || grid.Immune || grid.GridGeneralDamageModifier <= 0)
             {
                 t.BaseDamagePool = 0;
@@ -769,6 +779,7 @@ namespace CoreSystems
                             }
                         }
 
+                        Log.Line($"Damaged {block.BlockDefinition.DisplayNameText} on {hitEnt.Entity.DisplayName}");
 
                         //Apply damage
                         if (canDamage)
