@@ -5,7 +5,6 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using VRage;
-using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
@@ -18,7 +17,6 @@ using CollisionLayers = Sandbox.Engine.Physics.MyPhysics.CollisionLayers;
 using Jakaria.API;
 using static CoreSystems.Projectiles.Projectile;
 using static CoreSystems.Support.VoxelIntersect;
-using System.Runtime.CompilerServices;
 
 namespace CoreSystems.Projectiles
 {
@@ -856,6 +854,11 @@ namespace CoreSystems.Projectiles
                                 {
                                     lastBlockHit = firstBlock;
                                     hitEnt.Blocks.Add(new HitEntity.RootBlocks {Block = firstBlock, QueryPos = posI});
+                                    //
+                                    var blockDist = Vector3D.DistanceSquared(grid.GridIntegerToWorld(posI), beam.From);
+                                    info.BlockList.Add(new KeyValuePair<IMySlimBlock, double>(firstBlock, blockDist));
+
+
                                     if (closestBlockFound) continue;
                                     MyOrientedBoundingBoxD obb;
                                     var fat = firstBlock.FatBlock;
