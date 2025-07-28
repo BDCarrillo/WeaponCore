@@ -647,30 +647,45 @@ namespace CoreSystems.Support
 
             internal bool GetConstructTargetInfo(MyEntity target, out TargetInfo targetInfo)
             {
-                for (int i = 0; i < Ai.TopEntityMap.GroupMap.Ais.Count; i++)
-                {
-                    var ai = Ai.TopEntityMap.GroupMap.Ais[i];
-                    if (ai.TargetsUpdatedTick > LastTargetInfoTick)
-                    {
-                        LastTargetInfoTick = Session.I.Tick;
-                        break;
-                    }
-                }
-
-                if (LastTargetInfoTick == Session.I.Tick)
-                {
-                    ConstructTargetInfoCache.Clear();
+                if (LastTargetInfoTick != Session.I.Tick)
                     for (int i = 0; i < Ai.TopEntityMap.GroupMap.Ais.Count; i++)
                     {
                         var ai = Ai.TopEntityMap.GroupMap.Ais[i];
-                        foreach (var info in ai.Targets)
+                        if (ai.TargetsUpdatedTick > LastTargetInfoTick)
                         {
-                            ConstructTargetInfoCache[info.Key] = info.Value;
+                            LastTargetInfoTick = Session.I.Tick;
+                            ConstructTargetInfoCache.Clear();
+                            for (int j = 0; j < Ai.TopEntityMap.GroupMap.Ais.Count; j++)
+                            {
+                                var ai2 = Ai.TopEntityMap.GroupMap.Ais[i];
+                                foreach (var info in ai2.Targets)
+                                    ConstructTargetInfoCache[info.Key] = info.Value;
+                            }
+                            break;
                         }
                     }
-                }
-
                 return ConstructTargetInfoCache.TryGetValue(target, out targetInfo);
+            }
+
+            internal void UpdateConstructTargetInfo()
+            {
+                if (LastTargetInfoTick != Session.I.Tick)
+                    for (int i = 0; i < Ai.TopEntityMap.GroupMap.Ais.Count; i++)
+                    {
+                        var ai = Ai.TopEntityMap.GroupMap.Ais[i];
+                        if (ai.TargetsUpdatedTick > LastTargetInfoTick)
+                        {
+                            LastTargetInfoTick = Session.I.Tick;
+                            ConstructTargetInfoCache.Clear();
+                            for (int j = 0; j < Ai.TopEntityMap.GroupMap.Ais.Count; j++)
+                            {
+                                var ai2 = Ai.TopEntityMap.GroupMap.Ais[i];
+                                foreach (var info in ai2.Targets)
+                                    ConstructTargetInfoCache[info.Key] = info.Value;
+                            }
+                            break;
+                        }
+                    }
             }
 
             internal void AddWeaponCount(MyStringHash weaponHash, int incrementBy = 1)

@@ -412,7 +412,6 @@ namespace CoreSystems.Api
             var relation = MyRelationsBetweenPlayerAndBlock.NoOwnership;
             var type = MyDetectedEntityType.Unknown;
             var name = string.Empty;
-
             Ai ai;
             Ai.TargetInfo info = null;
 
@@ -421,11 +420,8 @@ namespace CoreSystems.Api
                 type = info.EntInfo.Type;
                 var maxDist = ai.MaxTargetingRange + shooterGrid.PositionComp.WorldAABB.Extents.Max();
                 if (Vector3D.DistanceSquared(e.PositionComp.WorldMatrixRef.Translation, shooterGrid.PositionComp.WorldMatrixRef.Translation) > (maxDist * maxDist))
-                {
                     return new MyDetectedEntityInfo();
-                }
             }
-
             if (!target.Item1 || e == null || topTarget?.Physics == null) {
                 var projectile = target.Item2;
                 var fake = target.Item3;
@@ -443,10 +439,12 @@ namespace CoreSystems.Api
             }
             entityId = e.EntityId;
             var grid = topTarget as MyCubeGrid;
-            if (grid != null) name = block != null ? block.CustomName : grid.DisplayName;
-            else if (player != null) name = player.GetFriendlyName();
-            else name = e.GetFriendlyName();
-
+            if (grid != null)
+                name = block != null ? block.CustomName : grid.DisplayName;
+            else if (player != null)
+                name = player.GetFriendlyName();
+            else
+                name = e.GetFriendlyName();
             return new MyDetectedEntityInfo(entityId, name, type, e.PositionComp.WorldAABB.Center, e.PositionComp.WorldMatrixRef, topTarget.Physics.LinearVelocity, relation, e.PositionComp.WorldAABB, Session.I.Tick);
         }
 
@@ -496,16 +494,37 @@ namespace CoreSystems.Api
         private void PbGetSortedThreats(object arg1, object arg2)
         {
             var shooter = (MyEntity)arg1;
-            GetSortedThreats(shooter, _tmpTargetList);
-            
+            GetSortedThreats(shooter, _tmpTargetList);            
             var dict = (IDictionary<MyDetectedEntityInfo, float>) arg2;
-            
+            Ai ai;
+            var shooterGrid = shooter.GetTopMostParent();
+            if (Session.I.EntityToMasterAi.TryGetValue(shooterGrid, out ai))
+            {
+                ai.Construct.UpdateConstructTargetInfo();
+                foreach (var i in _tmpTargetList)
+                {
+                    var ent = i.Item1;
+                    var info = ai.Construct.ConstructTargetInfoCache[ent];
+                    if (shooterGrid != null && Vector3D.DistanceSquared(ent.PositionComp.WorldVolume.Center, shooterGrid.PositionComp.WorldVolume.Center) <= ai.MaxTargetingRangeSqr)
+                        dict.Add(new MyDetectedEntityInfo(ent.EntityId, ent.DisplayName, info.EntInfo.Type, ent.PositionComp.WorldAABB.Center, ent.PositionComp.WorldMatrixRef, ent.Physics.LinearVelocity, info.EntInfo.Relationship, ent.PositionComp.WorldAABB, Session.I.Tick), i.Item2);
+                }
+            }
+            _tmpTargetList.Clear();
+        }
+
+        private void PbGetSortedThreatsOLD(object arg1, object arg2)
+        {
+            var shooter = (MyEntity)arg1;
+            GetSortedThreats(shooter, _tmpTargetList);
+
+            var dict = (IDictionary<MyDetectedEntityInfo, float>)arg2;
+
             foreach (var i in _tmpTargetList)
-                dict[GetDetailedEntityInfo(new MyTuple<bool, bool, bool, MyEntity>(true, false, false , i.Item1), shooter)] = i.Item2;
+                dict[GetDetailedEntityInfo(new MyTuple<bool, bool, bool, MyEntity>(true, false, false, i.Item1), shooter)] = i.Item2;
 
             _tmpTargetList.Clear();
-
         }
+
 
         private void PbGetSortedThreatsByID(object arg1, object arg2)
         {
@@ -518,7 +537,6 @@ namespace CoreSystems.Api
                 dict[i.Item1.EntityId] = GetDetailedEntityInfo(new MyTuple<bool, bool, bool, MyEntity>(true, false, false, i.Item1), shooter);
 
             _tmpTargetList.Clear();
-
         }
 
         private MyTuple<bool, int, int> PbGetProjectilesLockedOn(long arg)
