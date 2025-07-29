@@ -252,9 +252,20 @@ namespace CoreSystems.Api
             {
                 collection.Clear();
                 GetObstructions((MyEntity)shooter, _tmpPbGetObstructions);
-                foreach (var i in _tmpPbGetObstructions)
-                    collection.Add(GetDetailedEntityInfo(new MyTuple<bool, bool, bool, MyEntity>(true, false, false, i), (MyEntity)shooter));
 
+                Ai ai;
+                var shooterGrid = (MyEntity)shooter.CubeGrid;
+                if (Session.I.EntityToMasterAi.TryGetValue(shooterGrid, out ai))
+                {
+                    ai.Construct.UpdateConstructTargetInfo();
+                    foreach (var i in _tmpTargetList)
+                    {
+                        var ent = i.Item1;
+                        var info = ai.Construct.ConstructTargetInfoCache[ent];
+                        if (Vector3D.DistanceSquared(ent.PositionComp.WorldVolume.Center, shooterGrid.PositionComp.WorldVolume.Center) <= ai.MaxTargetingRangeSqr)
+                            collection.Add(new MyDetectedEntityInfo(ent.EntityId, ent.DisplayName, info.EntInfo.Type, ent.PositionComp.WorldAABB.Center, ent.PositionComp.WorldMatrixRef, ent.Physics.LinearVelocity, info.EntInfo.Relationship, ent.PositionComp.WorldAABB, Session.I.Tick));
+                    }
+                }
                 _tmpPbGetObstructions.Clear();
             }
         }
@@ -505,14 +516,14 @@ namespace CoreSystems.Api
                 {
                     var ent = i.Item1;
                     var info = ai.Construct.ConstructTargetInfoCache[ent];
-                    if (shooterGrid != null && Vector3D.DistanceSquared(ent.PositionComp.WorldVolume.Center, shooterGrid.PositionComp.WorldVolume.Center) <= ai.MaxTargetingRangeSqr)
-                        dict.Add(new MyDetectedEntityInfo(ent.EntityId, ent.DisplayName, info.EntInfo.Type, ent.PositionComp.WorldAABB.Center, ent.PositionComp.WorldMatrixRef, ent.Physics.LinearVelocity, info.EntInfo.Relationship, ent.PositionComp.WorldAABB, Session.I.Tick), i.Item2);
+                    if (Vector3D.DistanceSquared(ent.PositionComp.WorldVolume.Center, shooterGrid.PositionComp.WorldVolume.Center) <= ai.MaxTargetingRangeSqr)
+                        dict[new MyDetectedEntityInfo(ent.EntityId, ent.DisplayName, info.EntInfo.Type, ent.PositionComp.WorldAABB.Center, ent.PositionComp.WorldMatrixRef, ent.Physics.LinearVelocity, info.EntInfo.Relationship, ent.PositionComp.WorldAABB, Session.I.Tick)] = i.Item2;
                 }
             }
             _tmpTargetList.Clear();
         }
-
-        private void PbGetSortedThreatsOLD(object arg1, object arg2)
+        /*
+        private void PbGetSortedThreats(object arg1, object arg2)
         {
             var shooter = (MyEntity)arg1;
             GetSortedThreats(shooter, _tmpTargetList);
@@ -536,6 +547,28 @@ namespace CoreSystems.Api
             foreach (var i in _tmpTargetList)
                 dict[i.Item1.EntityId] = GetDetailedEntityInfo(new MyTuple<bool, bool, bool, MyEntity>(true, false, false, i.Item1), shooter);
 
+            _tmpTargetList.Clear();
+        }
+        */
+        private void PbGetSortedThreatsByID(object arg1, object arg2)
+        {
+            var shooter = (MyEntity)arg1;
+            GetSortedThreats(shooter, _tmpTargetList);
+            var dict = (IDictionary<long, MyDetectedEntityInfo>)arg2;
+
+            Ai ai;
+            var shooterGrid = shooter.GetTopMostParent();
+            if (Session.I.EntityToMasterAi.TryGetValue(shooterGrid, out ai))
+            {
+                ai.Construct.UpdateConstructTargetInfo();
+                foreach (var i in _tmpTargetList)
+                {
+                    var ent = i.Item1;
+                    var info = ai.Construct.ConstructTargetInfoCache[ent];
+                    if (Vector3D.DistanceSquared(ent.PositionComp.WorldVolume.Center, shooterGrid.PositionComp.WorldVolume.Center) <= ai.MaxTargetingRangeSqr)
+                        dict[ent.EntityId] = new MyDetectedEntityInfo(ent.EntityId, ent.DisplayName, info.EntInfo.Type, ent.PositionComp.WorldAABB.Center, ent.PositionComp.WorldMatrixRef, ent.Physics.LinearVelocity, info.EntInfo.Relationship, ent.PositionComp.WorldAABB, Session.I.Tick);
+                }
+            }
             _tmpTargetList.Clear();
         }
 
