@@ -583,27 +583,76 @@ namespace CoreSystems.Projectiles
 
             if (target.TargetState == Target.TargetStates.IsProjectile && aConst.NonAntiSmartEwar && !projetileInShield)
             {
-                var detonate = p.State == ProjectileState.Detonate;
-                var hitTolerance = detonate ? aConst.EndOfLifeRadius : aConst.ByBlockHitRadius > aConst.CollisionSize ? aConst.ByBlockHitRadius : aConst.CollisionSize;
-                var useLine = lineCheck && !detonate && aConst.ByBlockHitRadius <= 0;
-                var projectile = (Projectile)target.TargetObject;
-                var sphere = new BoundingSphereD(projectile.Position, aConst.CollisionSize);
-                sphere.Include(new BoundingSphereD(projectile.LastPosition, 1));
+                var targetProjectile = (Projectile)target.TargetObject;
 
-                bool rayCheck = false;
-                if (useLine)
+                var weaponVel = p.Info.ShooterVel;
+                
+                // CCD by closest approach.
+                // The principle is: if we detect the closest approach is between this tick and the next, and the closest approach distance is below the threshold, we got a hit.
+                const double dt = 1.0 / 60.0;
+                var dp = p.Position + weaponVel * dt - targetProjectile.Position; // Compensates for the phantom drift
+                var dv = p.Velocity - targetProjectile.Velocity;
+
+                double t;
+                double collisionDistanceSqr;
+                
+                var dvdv = Vector3D.Dot(dv, dv);
+                
+                if (Math.Abs(dvdv) < 1e-6)
                 {
-                    var dist = sphere.Intersects(new RayD(p.LastPosition, p.Direction));
-                    if (dist <= hitTolerance || isBeam && dist <= beamLen)
-                        rayCheck = true;
+                    // Very weird case where projectiles are speed-matched.
+                    // We will treat it as the collision tick.
+                    t = 0.0;
+                    collisionDistanceSqr = Vector3D.Dot(dp, dp);
                 }
-
-                var testSphere = p.PruneSphere;
-                testSphere.Radius = hitTolerance;
-
-                if (rayCheck || sphere.Intersects(testSphere))
+                else
                 {
-                    ProjectileHit(p, projectile, lineCheck, ref p.Beam);
+                    var dpdv = Vector3D.Dot(dp, dv);
+                    
+                    // We clamp t to the interval between this tick and the next tick.
+                    // if t is negative, the collision has already passed and the closest approach is at t=0.
+                    t = MathHelperD.Clamp(-dpdv / dvdv, 0.0, dt);
+                    collisionDistanceSqr = Vector3D.Dot(dp, dp) + dvdv * (t * t) + 2.0 * dpdv * t;
+                }
+                
+                var bulletSize = p.State == ProjectileState.Detonate 
+                    ? aConst.EndOfLifeRadius 
+                    : aConst.ByBlockHitRadius > aConst.CollisionSize 
+                        ? aConst.ByBlockHitRadius 
+                        : aConst.CollisionSize;
+                    
+                var targetSize = targetProjectile.Info.AmmoDef.Const.CollisionSize;
+
+                // The two things are interacting if their bounding spheres overlap:
+                var interactionThreshold = bulletSize + targetSize;
+
+                if (collisionDistanceSqr < interactionThreshold * interactionThreshold)
+                {
+                    ProjectileHit(p, targetProjectile, lineCheck, ref p.Beam);
+                    
+                    /*
+                    var debugDraw = Session.PersistentDebugDraw.GetOrAttachForOrdinary(new object());
+
+                    const double dt = 1.0 / 60.0;
+                    var bullet0 = p.Position;
+                    var bullet1 = p.Position + p.Velocity * dt;
+                    var target0 = targetProjectile.Position;
+                    var target1 = targetProjectile.Position + targetProjectile.Velocity * dt;
+                    var bulletInt = p.Position + p.Velocity * t;
+                    var targetInt = targetProjectile.Position + targetProjectile.Velocity * t;
+
+                    debugDraw.With(() =>
+                    {
+                        // Discrete positions:
+                        DsDebugDraw.DrawSphere(new BoundingSphereD(bullet0, bulletSize), new Color(100, 0, 0, 100));
+                        DsDebugDraw.DrawSphere(new BoundingSphereD(bullet1, bulletSize), new Color(255, 0, 0, 100));
+                        DsDebugDraw.DrawSphere(new BoundingSphereD(target0, targetSize), new Color(0, 100, 0, 100));
+                        DsDebugDraw.DrawSphere(new BoundingSphereD(target1, targetSize), new Color(0, 255, 0, 100));
+
+                        // Continuous-time positions:
+                        DsDebugDraw.DrawSphere(new BoundingSphereD(bulletInt, bulletSize), new Color(255, 0, 0, 255));
+                        DsDebugDraw.DrawSphere(new BoundingSphereD(targetInt, targetSize), new Color(0, 255, 0, 255));
+                    });*/
                 }
             }
                 
