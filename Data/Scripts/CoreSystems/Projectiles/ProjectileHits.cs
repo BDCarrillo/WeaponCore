@@ -615,16 +615,17 @@ namespace CoreSystems.Projectiles
                     collisionDistanceSqr = Vector3D.Dot(dp, dp) + dvdv * (t * t) + 2.0 * dpdv * t;
                 }
                 
-                var bulletSize = p.State == ProjectileState.Detonate 
+                // CollisionSize is diameter
+                var bulletRadius = p.State == ProjectileState.Detonate 
                     ? aConst.EndOfLifeRadius 
-                    : aConst.ByBlockHitRadius > aConst.CollisionSize 
+                    : aConst.ByBlockHitRadius > 0.5 * aConst.CollisionSize
                         ? aConst.ByBlockHitRadius 
-                        : aConst.CollisionSize;
+                        : 0.5 * aConst.CollisionSize;
                     
-                var targetSize = targetProjectile.Info.AmmoDef.Const.CollisionSize;
+                var targetRadius = 0.5 * targetProjectile.Info.AmmoDef.Const.CollisionSize;
 
                 // The two things are interacting if their bounding spheres overlap:
-                var interactionThreshold = bulletSize + targetSize;
+                var interactionThreshold = bulletRadius + targetRadius;
 
                 if (collisionDistanceSqr < interactionThreshold * interactionThreshold)
                 {
