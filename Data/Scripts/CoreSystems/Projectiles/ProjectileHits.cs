@@ -628,16 +628,25 @@ namespace CoreSystems.Projectiles
                 #region Sphere-Sphere Continuous Collision Detection
                 
                 /* 
-                 * Simple and cheap mnethod for detecting the collision under the continuous-time framework the aim predictors work in.
-                 * For spheres and capsules, we can calculate the distance of closest approach between the current tick and the next, analytically.
-                 * (Note: This makes the algorithm forward-looking as opposed to the grid one)
+                 * Simple and cheap method for detecting the collision under the continuous-time framework the aim predictors work in.
                  *  - For spheres, if the distance of closest approach is less than the sum of their radii, then we have a collision.
                  *  - We don't have a capsule shape, because they are not needed, but the same type of logic can stated for them, although the needed algorithm would be a bit larger.
                  */
-                
-                var weaponVel = p.Info.ShooterVel;
-                var dp = p.Position + weaponVel * dt - targetProjectile.Position; // Compensates for the phantom drift
-                var dv = p.Velocity - targetProjectile.Velocity;
+
+                Vector3D dp, dv;
+
+                if (isBeam)
+                {
+                    // Needs to be backward-looking for beams to work.
+                    dp = p.LastPosition + p.Info.ShooterVel * dt - targetProjectile.LastPosition;
+                    dv = (p.Position - p.LastPosition) / dt - targetProjectile.PrevVelocity1;
+                }
+                else
+                {
+                    // Forward-looking:
+                    dp = p.Position + p.Info.ShooterVel * dt - targetProjectile.Position; 
+                    dv = p.Velocity - targetProjectile.Velocity;
+                }
                 
                 double closestApproachDistanceSqr; // Inside the [0, dt] range
                 
@@ -645,23 +654,17 @@ namespace CoreSystems.Projectiles
                 
                 if (Math.Abs(dvdv) < 1e-6)
                 {
-                    // Very weird case where projectiles are speed-matched.
-                    // We will treat it as the collision tick.
                     closestApproachDistanceSqr = Vector3D.Dot(dp, dp);
                 }
                 else
                 {
                     var dpdv = Vector3D.Dot(dp, dv);
-                    
-                    // We clamp t to the interval between this tick and the next tick.
-                    // if t is negative, the collision has already passed and the closest approach is at t=0.
                     var timeOfClosestApproach = MathHelperD.Clamp(-dpdv / dvdv, 0.0, dt);
                     closestApproachDistanceSqr = Vector3D.Dot(dp, dp) + dvdv * (timeOfClosestApproach * timeOfClosestApproach) + 2.0 * dpdv * timeOfClosestApproach;
                 }
                 
-                // The two things are interacting if their bounding spheres overlap:
                 var interactionThreshold = bulletRadius + targetRadius;
-
+                
                 if (closestApproachDistanceSqr < interactionThreshold * interactionThreshold)
                 {
                     ProjectileHit(p, targetProjectile, lineCheck, ref p.Beam);
