@@ -466,12 +466,11 @@ namespace CoreSystems.Projectiles
                     }
                     else
                     {
-                        const double dt = 1.0 / 60.0;
                         var targetVel = (Vector3D)grid.Physics.LinearVelocity;
                         var weaponVel = p.Info.ShooterVel;
                         
                         // Continuous collision detection @home:
-                        crBeam = new LineD(beamFrom + weaponVel * dt, beamTo - (targetVel - weaponVel) * dt);
+                        crBeam = new LineD(beamFrom + weaponVel * Session.I.DeltaStepConst, beamTo - (targetVel - weaponVel) * Session.I.DeltaStepConst);
                         
                         grid.RayCastCells(crBeam.From, crBeam.To, hitEntity.Vector3ICache, null, true, true);
                         /*
@@ -585,9 +584,7 @@ namespace CoreSystems.Projectiles
             if (target.TargetState == Target.TargetStates.IsProjectile && aConst.NonAntiSmartEwar && !projetileInShield)
             {
                 var targetProjectile = (Projectile)target.TargetObject;
-
-                const double dt = 1.0 / 60.0;
-                
+               
                 double bulletRadius;
                 
                 // LineShape is deprecated, and we use some fallback calculations to reproduce the old behavior:
@@ -637,9 +634,9 @@ namespace CoreSystems.Projectiles
                  */
                 
                 var weaponVel = p.Info.ShooterVel;
-                var dp = p.Position + weaponVel * dt - targetProjectile.Position; // Compensates for the phantom drift
-                var dv = p.Velocity - targetProjectile.Velocity;
-                
+                var dp = p.LastPosition + p.Info.ShooterVel * Session.I.DeltaStepConst - targetProjectile.LastPosition;
+                var dv = (p.Position - p.LastPosition - targetProjectile.Position + targetProjectile.LastPosition) / Session.I.DeltaStepConst;
+
                 double closestApproachDistanceSqr; // Inside the [0, dt] range
                 
                 var dvdv = Vector3D.Dot(dv, dv);
@@ -656,7 +653,7 @@ namespace CoreSystems.Projectiles
                     
                     // We clamp t to the interval between this tick and the next tick.
                     // if t is negative, the collision has already passed and the closest approach is at t=0.
-                    var timeOfClosestApproach = MathHelperD.Clamp(-dpdv / dvdv, 0.0, dt);
+                    var timeOfClosestApproach = MathHelperD.Clamp(-dpdv / dvdv, 0.0, Session.I.DeltaStepConst);
                     closestApproachDistanceSqr = Vector3D.Dot(dp, dp) + dvdv * (timeOfClosestApproach * timeOfClosestApproach) + 2.0 * dpdv * timeOfClosestApproach;
                 }
                 
