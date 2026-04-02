@@ -474,53 +474,6 @@ namespace CoreSystems.Projectiles
                         crBeam = new LineD(beamFrom + weaponVel * dt, beamTo - (targetVel - weaponVel) * dt);
                         
                         grid.RayCastCells(crBeam.From, crBeam.To, hitEntity.Vector3ICache, null, true, true);
-                       
-                        var txWorldTargetCr = MatrixD.Invert(grid.WorldMatrix);
-                        var beamFromTarget = Vector3D.Transform(beamFrom, txWorldTargetCr);
-                        var beamToTarget = Vector3D.Transform(beamTo, txWorldTargetCr);
-                        var crBeamFromTarget = Vector3D.Transform(crBeam.From, txWorldTargetCr);
-                        var crBeamToTarget = Vector3D.Transform(crBeam.To, txWorldTargetCr);
-
-                        var cells = hitEntity.Vector3ICache.ToList();
-                        Session.PersistentDebugDraw.GetOrAttachForEntity(grid, p.Info.Id, int.MaxValue).With(() =>
-                        {
-                            var txTargetWorld = grid.WorldMatrix;
-                            
-                            // Previous WC resolution:
-                            DsDebugDraw.DrawLine(
-                                Vector3D.Transform(beamFromTarget, txTargetWorld),
-                                Vector3D.Transform(beamToTarget, txTargetWorld),
-                                Color.Red.ToVector4(),
-                                0.25f
-                            );
-                            
-                            // New collision resolution:
-                            DsDebugDraw.DrawLine(
-                                Vector3D.Transform(crBeamFromTarget, txTargetWorld),
-                                Vector3D.Transform(crBeamToTarget, txTargetWorld),
-                                Color.White.ToVector4(),
-                                0.25f
-                            );
-
-                            var blocks = new HashSet<IMySlimBlock>();
-                            foreach (var vector3I in cells)
-                            {
-                                var slim = (grid as IMyCubeGrid).GetCubeBlock(vector3I);
-
-                                if (slim != null && blocks.Add(slim))
-                                {
-                                    var gridSize = grid.GridSize;
-                                    
-                                    var obb = new MyOrientedBoundingBoxD(new BoundingBoxD(
-                                        slim.Min * gridSize - gridSize / 2f,
-                                        slim.Max * gridSize + gridSize / 2f),
-                                        grid.WorldMatrix
-                                    );
-                                    
-                                    DsDebugDraw.DrawBox(obb, Color.White);
-                                }
-                            }
-                        });
                     }
 
                     if (!offensiveEwar && !fieldActive)
@@ -632,21 +585,9 @@ namespace CoreSystems.Projectiles
                  *  - For spheres, if the distance of closest approach is less than the sum of their radii, then we have a collision.
                  *  - We don't have a capsule shape, because they are not needed, but the same type of logic can stated for them, although the needed algorithm would be a bit larger.
                  */
-
-                Vector3D dp, dv;
-
-                if (isBeam)
-                {
-                    // Needs to be backward-looking for beams to work.
-                    dp = p.LastPosition + p.Info.ShooterVel * dt - targetProjectile.LastPosition;
-                    dv = (p.Position - p.LastPosition) / dt - targetProjectile.PrevVelocity1;
-                }
-                else
-                {
-                    // Forward-looking:
-                    dp = p.Position + p.Info.ShooterVel * dt - targetProjectile.Position; 
-                    dv = p.Velocity - targetProjectile.Velocity;
-                }
+                
+                var dp = p.LastPosition + p.Info.ShooterVel * dt - targetProjectile.LastPosition; 
+                var dv = (p.Position - p.LastPosition - targetProjectile.Position + targetProjectile.LastPosition) / dt;
                 
                 double closestApproachDistanceSqr; // Inside the [0, dt] range
                 
