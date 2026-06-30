@@ -821,7 +821,11 @@ namespace CoreSystems
                                     ShowLocalNotify($"Shooting {(Settings.Enforcement.ProhibitShooting ? "Disabled" : "Enabled")}", 5000, "White");
                                     Log.Line($"Shooting {(Settings.Enforcement.ProhibitShooting ? "Disabled" : "Enabled")}");
                                 }
-
+                                break;
+                            case "checkshooting":
+                            case "cs":
+                                somethingUpdated = true;
+                                Log.Line($"Shooting is {(Settings.Enforcement.ProhibitShooting ? "Disabled" : "Enabled")}");
                                 break;
 
                         }
@@ -859,7 +863,7 @@ namespace CoreSystems
                     }
 
                     if (cube.BlockDefinition?.Id.SubtypeName != null)
-                        _unsupportedBlockNames.Add(cube.BlockDefinition.Id.SubtypeName + " (" + cube.BlockDefinition.Context.ModName + ")");                    
+                        _unsupportedBlockNames.Add(cube.BlockDefinition.Id.SubtypeName + " (" + cube.BlockDefinition.Context.ModName + ")");
 
                     if (DedicatedServer)
                     {
