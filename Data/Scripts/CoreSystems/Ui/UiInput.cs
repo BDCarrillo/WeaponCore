@@ -93,7 +93,7 @@ namespace WeaponCore.Data.Scripts.CoreSystems.Ui
             AimRay = new LineD();
             CycleNextKeyPressed = false;
             CyclePrevKeyPressed = false;
-
+            ControlKeyPressed = false;
             if (!s.InGridAiBlock) s.UpdateLocalAiAndCockpit();
 
             if (s.InGridAiBlock && !s.InMenu)
