@@ -80,6 +80,7 @@ namespace CoreSystems.Api
         private Func<MyEntity, MyEntity, int, bool> _canShootTarget;
         private Func<MyEntity, MyEntity, int, Vector3D?> _getPredictedTargetPos;
         private Func<MyEntity, float> _getHeatLevel;
+        private Func<MyEntity, int, int> _getMaxWeaponHeatLevel;
         private Func<MyEntity, int, float> _getWeaponHeatLevel;
         private Func<MyEntity, int, float, bool> _setWeaponHeatLevel;
         private Func<MyEntity, float> _currentPowerConsumption;
@@ -146,6 +147,14 @@ namespace CoreSystems.Api
             _getPredictedTargetPos?.Invoke(weapon, targetEnt, weaponId) ?? null;
 
         public float GetHeatLevel(MyEntity weapon) => _getHeatLevel?.Invoke(weapon) ?? 0f;
+
+        /// <summary>
+        /// Gets the maximum heat level of the given weapon attached to the given entity. Returns -1 if this fails.
+        /// </summary>
+        /// <param name="weapon"></param>
+        /// <param name="weaponId"></param>
+        /// <returns></returns>
+        public int GetWeaponMaxHeatLevel(MyEntity weapon, int weaponId) => _getMaxWeaponHeatLevel?.Invoke(weapon, weaponId) ?? -1;
         /// <summary>
         /// Gets the current heat level of the given weapon attached to the given entity. Returns -1 if this fails.
         /// </summary>
@@ -155,6 +164,7 @@ namespace CoreSystems.Api
         public float GetWeaponHeatLevel(MyEntity weapon, int weaponId) => _getWeaponHeatLevel?.Invoke(weapon, weaponId) ?? -1f;
         /// <summary>
         /// Sets the current heat level of the given weapon attached to the given entity. Returns false if this fails, true otherwise.
+        /// <para>Please sync this on client.</para>
         /// </summary>
         /// <param name="weapon">Entity which owns the weapon</param>
         /// <param name="weaponId">Weapon Id</param>

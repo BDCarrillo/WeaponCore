@@ -107,6 +107,7 @@ namespace CoreSystems.Api
                 ["GetPredictedTargetPosition"] = new Func<Sandbox.ModAPI.IMyTerminalBlock, IMyEntity, int, Vector3D?>(GetPredictedTargetPositionLegacy),
                 ["GetHeatLevelBase"] = new Func<MyEntity, float>(GetHeatLevel),
                 ["GetHeatLevel"] = new Func<Sandbox.ModAPI.IMyTerminalBlock, float>(GetHeatLevelLegacy),
+                ["GetMaxWeaponHeatLevel"] = new Func<MyEntity, int, int>(GetMaxWeaponHeatLevel),
                 ["GetWeaponHeatLevel"] = new Func<MyEntity, int, float>(GetWeaponHeatLevel),
                 ["SetWeaponHeatLevel"] = new Func<MyEntity, int, float, bool>(SetWeaponHeatLevel),
                 ["GetMaxWeaponRangeBase"] = new Func<MyEntity, int, float>(GetMaxWeaponRange),
@@ -201,6 +202,8 @@ namespace CoreSystems.Api
                 ["CanShootTarget"] = new Func<Sandbox.ModAPI.Ingame.IMyTerminalBlock, long, int, bool>(PbCanShootTarget),
                 ["GetPredictedTargetPosition"] = new Func<Sandbox.ModAPI.Ingame.IMyTerminalBlock, long, int, Vector3D?>(PbGetPredictedTargetPosition),
                 ["GetHeatLevel"] = new Func<Sandbox.ModAPI.Ingame.IMyTerminalBlock, float>(PbGetHeatLevel),
+                ["GetMaxWeaponHeatLevel"] = new Func<Sandbox.ModAPI.Ingame.IMyTerminalBlock, int, int>(PbGetMaxWeaponHeatLevel),
+                ["GetWeaponHeatLevel"] = new Func<Sandbox.ModAPI.Ingame.IMyTerminalBlock, int, float>(PbGetWeaponHeatLevel),
                 ["GetCurrentPower"] = new Func<Sandbox.ModAPI.Ingame.IMyTerminalBlock, float>(PbGetCurrentPower),
                 ["GetMaxPower"] = new Func<MyDefinitionId, float>(GetMaxPower),
                 ["HasGridAi"] = new Func<long, bool>(PbHasGridAi),
@@ -324,8 +327,17 @@ namespace CoreSystems.Api
 
         private float PbGetHeatLevel(object arg)
         {
-            return GetHeatLevel((MyEntity) arg);
+            return GetHeatLevel((MyEntity)arg);
         }
+        private int PbGetMaxWeaponHeatLevel(object weapon, int weaponId)
+        {
+            return GetMaxWeaponHeatLevel((MyEntity)weapon, weaponId);
+        }
+        private float PbGetWeaponHeatLevel(object weapon, int weaponId)
+        {
+            return GetWeaponHeatLevel((MyEntity)weapon, weaponId);
+        }
+
 
         private Vector3D? PbGetPredictedTargetPosition(object arg1, long arg2, int arg3)
         {
@@ -1323,6 +1335,16 @@ namespace CoreSystems.Api
                 return comp.CurrentHeat;
             }
             return 0f;
+        }
+
+        private static int GetMaxWeaponHeatLevel(MyEntity weaponBlock, int weaponId)
+        {
+            var comp = weaponBlock.Components.Get<CoreComponent>() as Weapon.WeaponComponent;
+            if (comp?.Platform != null && comp.Platform.State == Ready && comp.MaxHeat > 0 && comp.Platform.Weapons.Count > weaponId)
+            {
+                return comp.Platform.Weapons[weaponId].System.MaxHeat;
+            }
+            return -1;
         }
 
         private static float GetWeaponHeatLevel(MyEntity weaponBlock, int weaponId)

@@ -40,6 +40,8 @@ namespace CoreSystems.Api
         private Func<Sandbox.ModAPI.Ingame.IMyTerminalBlock, long, int, bool> _canShootTarget;
         private Func<Sandbox.ModAPI.Ingame.IMyTerminalBlock, long, int, Vector3D?> _getPredictedTargetPos;
         private Func<Sandbox.ModAPI.Ingame.IMyTerminalBlock, float> _getHeatLevel;
+        private Func<Sandbox.ModAPI.Ingame.IMyTerminalBlock, int, float> _getWeaponHeatLevel;
+        private Func<Sandbox.ModAPI.Ingame.IMyTerminalBlock, int, int> _getMaxWeaponHeatLevel;
         private Func<Sandbox.ModAPI.Ingame.IMyTerminalBlock, float> _currentPowerConsumption;
         private Func<MyDefinitionId, float> _getMaxPower;
         private Func<long, bool> _hasGridAi;
@@ -118,6 +120,8 @@ namespace CoreSystems.Api
             AssignMethod(delegates, "CanShootTarget", ref _canShootTarget);
             AssignMethod(delegates, "GetPredictedTargetPosition", ref _getPredictedTargetPos);
             AssignMethod(delegates, "GetHeatLevel", ref _getHeatLevel);
+            AssignMethod(delegates, "GetWeaponHeatLevel", ref _getWeaponHeatLevel);
+            AssignMethod(delegates, "GetMaxWeaponHeatLevel", ref _getMaxWeaponHeatLevel);
             AssignMethod(delegates, "GetCurrentPower", ref _currentPowerConsumption);
             AssignMethod(delegates, "GetMaxPower", ref _getMaxPower);
             AssignMethod(delegates, "HasGridAi", ref _hasGridAi);
@@ -456,11 +460,33 @@ namespace CoreSystems.Api
         /// Returns the heat level of <paramref name="weapon"/>.
         /// </summary>
         /// <remarks>
-        /// If <paramref name="weapon"/> is invalid or does not have heat, returns 0f. Heat may exceed 1.0f in case of overheat.
+        /// If <paramref name="weapon"/> is invalid or does not have heat, returns 0f.
         /// </remarks>
         /// <param name="weapon"></param>
-        /// <returns><see cref="float"/> heat as percentage between 0.0f and 1.0f</returns>
+        /// <returns><see cref="float"/>Total heat of all combined weapons.</returns>
         public float GetHeatLevel(Sandbox.ModAPI.Ingame.IMyTerminalBlock weapon) => _getHeatLevel?.Invoke(weapon) ?? 0f;
+
+        /// <summary>
+        /// Returns the heat level of the weapon on the block <paramref name="weapon"/> with id <paramref name="weaponId"/>.
+        /// </summary>
+        /// <remarks>
+        /// If the given weapon is invalid or does not have heat, returns -1f.
+        /// </remarks>
+        /// <param name="weapon"></param>
+        /// <param name="weaponId"></param>
+        /// <returns><see cref="float"/>Total heat of all combined weapons.</returns>
+        public float GetWeaponHeatLevel(Sandbox.ModAPI.Ingame.IMyTerminalBlock weapon, int weaponId) => _getWeaponHeatLevel?.Invoke(weapon, weaponId) ?? -1f;
+
+        /// <summary>
+        /// Returns the maximum heat level of the weapon on the block <paramref name="weapon"/> with id <paramref name="weaponId"/>.
+        /// </summary>
+        /// <remarks>
+        /// If the given weapon is invalid or does not have heat, returns -1.
+        /// </remarks>
+        /// <param name="weapon"></param>
+        /// <param name="weaponId"></param>
+        /// <returns><see cref="float"/>Total heat of all combined weapons.</returns>
+        public int GetMaxWeaponHeatLevel(Sandbox.ModAPI.Ingame.IMyTerminalBlock weapon, int weaponId) => _getMaxWeaponHeatLevel?.Invoke(weapon, weaponId) ?? -1;
 
         /// <summary>
         /// Returns current power consumption of <paramref name="weapon"/>.
