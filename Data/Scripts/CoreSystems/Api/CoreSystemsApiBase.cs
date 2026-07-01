@@ -80,6 +80,8 @@ namespace CoreSystems.Api
         private Func<MyEntity, MyEntity, int, bool> _canShootTarget;
         private Func<MyEntity, MyEntity, int, Vector3D?> _getPredictedTargetPos;
         private Func<MyEntity, float> _getHeatLevel;
+        private Func<MyEntity, int, float> _getWeaponHeatLevel;
+        private Func<MyEntity, int, float, bool> _setWeaponHeatLevel;
         private Func<MyEntity, float> _currentPowerConsumption;
         private Func<MyEntity, int, string> _getActiveAmmo;
         private Action<MyEntity, int, string> _setActiveAmmo;
@@ -144,6 +146,21 @@ namespace CoreSystems.Api
             _getPredictedTargetPos?.Invoke(weapon, targetEnt, weaponId) ?? null;
 
         public float GetHeatLevel(MyEntity weapon) => _getHeatLevel?.Invoke(weapon) ?? 0f;
+        /// <summary>
+        /// Gets the current heat level of the given weapon attached to the given entity. Returns -1 if this fails.
+        /// </summary>
+        /// <param name="weapon">Entity which owns the weapon</param>
+        /// <param name="weaponId">Weapon Id</param>
+        /// <returns></returns>
+        public float GetWeaponHeatLevel(MyEntity weapon, int weaponId) => _getWeaponHeatLevel?.Invoke(weapon, weaponId) ?? -1f;
+        /// <summary>
+        /// Sets the current heat level of the given weapon attached to the given entity. Returns false if this fails, true otherwise.
+        /// </summary>
+        /// <param name="weapon">Entity which owns the weapon</param>
+        /// <param name="weaponId">Weapon Id</param>
+        /// <param name="heat">Amount of heat to set</param>
+        /// <returns>True if the heat level was successfully set, false otherwise</returns>
+        public bool SetWeaponHeatLevel(MyEntity weapon, int weaponId, float heat) => _setWeaponHeatLevel?.Invoke(weapon, weaponId, heat) ?? false;
         public float GetCurrentPower(MyEntity weapon) => _currentPowerConsumption?.Invoke(weapon) ?? 0f;
         public void DisableRequiredPower(MyEntity weapon) => _disableRequiredPower?.Invoke(weapon);
         public bool HasCoreWeapon(MyEntity weapon) => _hasCoreWeapon?.Invoke(weapon) ?? false;
@@ -692,6 +709,8 @@ namespace CoreSystems.Api
             AssignMethod(delegates, "CanShootTargetBase", ref _canShootTarget);
             AssignMethod(delegates, "GetPredictedTargetPositionBase", ref _getPredictedTargetPos);
             AssignMethod(delegates, "GetHeatLevelBase", ref _getHeatLevel);
+            AssignMethod(delegates, "GetWeaponHeatLevel", ref _getWeaponHeatLevel);
+            AssignMethod(delegates, "SetWeaponHeatLevel", ref _setWeaponHeatLevel);
             AssignMethod(delegates, "GetCurrentPowerBase", ref _currentPowerConsumption);
             AssignMethod(delegates, "DisableRequiredPowerBase", ref _disableRequiredPower);
             AssignMethod(delegates, "HasCoreWeaponBase", ref _hasCoreWeapon);

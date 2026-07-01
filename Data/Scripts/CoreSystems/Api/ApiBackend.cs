@@ -107,6 +107,8 @@ namespace CoreSystems.Api
                 ["GetPredictedTargetPosition"] = new Func<Sandbox.ModAPI.IMyTerminalBlock, IMyEntity, int, Vector3D?>(GetPredictedTargetPositionLegacy),
                 ["GetHeatLevelBase"] = new Func<MyEntity, float>(GetHeatLevel),
                 ["GetHeatLevel"] = new Func<Sandbox.ModAPI.IMyTerminalBlock, float>(GetHeatLevelLegacy),
+                ["GetWeaponHeatLevel"] = new Func<MyEntity, int, float>(GetWeaponHeatLevel),
+                ["SetWeaponHeatLevel"] = new Func<MyEntity, int, float, bool>(SetWeaponHeatLevel),
                 ["GetMaxWeaponRangeBase"] = new Func<MyEntity, int, float>(GetMaxWeaponRange),
                 ["GetMaxWeaponRange"] = new Func<Sandbox.ModAPI.IMyTerminalBlock, int, float>(GetMaxWeaponRangeLegacy),
                 ["GetTurretTargetTypesBase"] = new Func<MyEntity, ICollection<string>, int, bool>(GetTurretTargetTypes),
@@ -1321,6 +1323,27 @@ namespace CoreSystems.Api
                 return comp.CurrentHeat;
             }
             return 0f;
+        }
+
+        private static float GetWeaponHeatLevel(MyEntity weaponBlock, int weaponId)
+        {
+            var comp = weaponBlock.Components.Get<CoreComponent>() as Weapon.WeaponComponent;
+            if (comp?.Platform != null && comp.Platform.State == Ready && comp.MaxHeat > 0 && comp.Platform.Weapons.Count > weaponId)
+            {
+                return comp.Platform.Weapons[weaponId].PartState.Heat;
+            }
+            return -1f;
+        }
+
+        private static bool SetWeaponHeatLevel(MyEntity weaponBlock, int weaponId, float heat)
+        {
+            var comp = weaponBlock.Components.Get<CoreComponent>() as Weapon.WeaponComponent;
+            if (comp?.Platform != null && comp.Platform.State == Ready && comp.MaxHeat > 0 && comp.Platform.Weapons.Count > weaponId)
+            {
+                comp.Platform.Weapons[weaponId].PartState.Heat = heat;
+                return true;
+            }
+            return false;
         }
 
         private static float GetCurrentPowerLegacy(IMyEntity weaponBlock) => GetCurrentPower((MyEntity) weaponBlock);
