@@ -474,7 +474,7 @@ namespace CoreSystems.Api
         /// </remarks>
         /// <param name="weapon"></param>
         /// <param name="weaponId"></param>
-        /// <returns><see cref="float"/>Total heat of all combined weapons.</returns>
+        /// <returns><see cref="float"/>Total heat of the weapon with weapon id <paramref name="weaponId"/> on block <paramref name="weapon"/></returns>
         public float GetWeaponHeatLevel(Sandbox.ModAPI.Ingame.IMyTerminalBlock weapon, int weaponId) => _getWeaponHeatLevel?.Invoke(weapon, weaponId) ?? -1f;
 
         /// <summary>
@@ -485,7 +485,7 @@ namespace CoreSystems.Api
         /// </remarks>
         /// <param name="weapon"></param>
         /// <param name="weaponId"></param>
-        /// <returns><see cref="float"/>Total heat of all combined weapons.</returns>
+        /// <returns><see cref="float"/>Maximum heat of the weapon with weapon id <paramref name="weaponId"/> on block <paramref name="weapon"/>.</returns>
         public int GetMaxWeaponHeatLevel(Sandbox.ModAPI.Ingame.IMyTerminalBlock weapon, int weaponId) => _getMaxWeaponHeatLevel?.Invoke(weapon, weaponId) ?? -1;
 
         /// <summary>
