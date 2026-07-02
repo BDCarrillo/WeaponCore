@@ -719,6 +719,7 @@ namespace CoreSystems.Api
             AssignMethod(delegates, "CanShootTargetBase", ref _canShootTarget);
             AssignMethod(delegates, "GetPredictedTargetPositionBase", ref _getPredictedTargetPos);
             AssignMethod(delegates, "GetHeatLevelBase", ref _getHeatLevel);
+            AssignMethod(delegates, "GetMaxWeaponHeatLevel", ref _getMaxWeaponHeatLevel);
             AssignMethod(delegates, "GetWeaponHeatLevel", ref _getWeaponHeatLevel);
             AssignMethod(delegates, "SetWeaponHeatLevel", ref _setWeaponHeatLevel);
             AssignMethod(delegates, "GetCurrentPowerBase", ref _currentPowerConsumption);
