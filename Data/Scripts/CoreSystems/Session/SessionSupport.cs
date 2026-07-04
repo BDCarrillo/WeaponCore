@@ -821,7 +821,11 @@ namespace CoreSystems
                                     ShowLocalNotify($"Shooting {(Settings.Enforcement.ProhibitShooting ? "Disabled" : "Enabled")}", 5000, "White");
                                     Log.Line($"Shooting {(Settings.Enforcement.ProhibitShooting ? "Disabled" : "Enabled")}");
                                 }
-
+                                break;
+                            case "checkshooting":
+                            case "cs":
+                                somethingUpdated = true;
+                                ShowLocalNotify($"Shooting is {(Settings.Enforcement.ProhibitShooting ? "Disabled" : "Enabled")}", 5000, "White");
                                 break;
 
                         }
@@ -831,7 +835,7 @@ namespace CoreSystems
                 if (!somethingUpdated)
                 {
                     if (message.Length <= 3)
-                        MyAPIGateway.Utilities.ShowNotification("HELPFUL TIPS: https://github.com/Ash-LikeSnow/WeaponCore/wiki/Player-Tips\nValid WeaponCore Commands:\n'/wc advanced -- Toggle advanced UI features'\n'/wc remap -- Remap keys'\n'/wc avlimit 5' -- Hard limits visual effects (valid range: 0 - 20, 0 is unlimited)\n'/wc changehud' to enable moving/resizing of WC Hud\n'/wc setdefaults' -- Resets shield client configs to default values\n'/wc stickypainter' -- Disable Painter LoS checks\n", 10000);
+                        MyAPIGateway.Utilities.ShowNotification("HELPFUL TIPS: https://github.com/Ash-LikeSnow/WeaponCore/wiki/Player-Tips\nValid WeaponCore Commands:\n'/wc advanced -- Toggle advanced UI features'\n'/wc remap -- Remap keys'\n'/wc avlimit 5' -- Hard limits visual effects (valid range: 0 - 20, 0 is unlimited)\n'/wc changehud' to enable moving/resizing of WC Hud\n'/wc setdefaults' -- Resets shield client configs to default values\n'/wc stickypainter' -- Disable Painter LoS checks\n/wc ts -- Toggles shooting permissions (admin only)\n wc cs -- Checks shooting permissions.", 10000);
                     else if (message.StartsWith("/wc remap"))
                         MyAPIGateway.Utilities.ShowNotification("'/wc remap keyboard' -- Remaps control key (default R)\n'/wc remap mouse' -- Remaps menu mouse key (default middle button)\n'/wc remap action' -- Remaps action key (default numpad0)\n'/wc remap info' -- Remaps info key (default decimal key, aka numpad period key)\n'/wc remap next' -- Remaps the Cycle Next Target key (default Page Down)\n'/wc remap prev' -- Remaps the Cycle Previous Target key (default Page Up)\n", 10000, "White");
                 }
@@ -859,7 +863,7 @@ namespace CoreSystems
                     }
 
                     if (cube.BlockDefinition?.Id.SubtypeName != null)
-                        _unsupportedBlockNames.Add(cube.BlockDefinition.Id.SubtypeName + " (" + cube.BlockDefinition.Context.ModName + ")");                    
+                        _unsupportedBlockNames.Add(cube.BlockDefinition.Id.SubtypeName + " (" + cube.BlockDefinition.Context.ModName + ")");
 
                     if (DedicatedServer)
                     {

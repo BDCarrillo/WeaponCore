@@ -532,7 +532,9 @@ namespace CoreSystems.Support
 
                     line.StartWidth = width;
                     line.StartColor = def.FactionColor == FactionColor.DontUse ? def.Color :
-                        def.FactionColor == FactionColor.Foreground ? av.Av.FgFactionColor * def.Color : av.Av.BgFactionColor * def.Color;
+                        def.FactionColor == FactionColor.Foreground ?
+                        av.Av.FgFactionColor == Vector4.Zero ? new Vector4(0f, 0f, 0f, 1f) * def.Color : av.Av.FgFactionColor * def.Color :
+                        av.Av.BgFactionColor == Vector4.Zero ? new Vector4(0f, 0f, 0f, 1f) * def.Color : av.Av.BgFactionColor * def.Color;
 
                     line.Velocity = av.Velocity * def.VelocityInheritence * MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS;
                     line.Material = def.Materials[(av.CurrentLifetime / (def.DelayBetweenSpawns + 1)) % def.Materials.Length];
@@ -645,7 +647,9 @@ namespace CoreSystems.Support
 
                     line.StartWidth = def.Width;
                     line.StartColor = def.FactionColor == FactionColor.DontUse ? def.Color :
-                    def.FactionColor == FactionColor.Foreground ? av.Av.FgFactionColor * def.Color : av.Av.BgFactionColor * def.Color;
+                        def.FactionColor == FactionColor.Foreground ?
+                        av.Av.FgFactionColor == Vector4.Zero ? new Vector4(0f, 0f, 0f, 1f) * def.Color : av.Av.FgFactionColor * def.Color :
+                        av.Av.BgFactionColor == Vector4.Zero ? new Vector4(0f, 0f, 0f, 1f) * def.Color : av.Av.BgFactionColor * def.Color;
 
                     line.Velocity = Vector3.Zero;
                     line.Material = def.Materials[(av.CurrentLifetime / divisor) % def.Materials.Length];
@@ -700,7 +704,9 @@ namespace CoreSystems.Support
                     b.UVSize = Vector2.One;
                     b.DistanceSquared = 0;
                     b.Color = def.FactionColor == FactionColor.DontUse ? def.Color :
-                        def.FactionColor == FactionColor.Foreground ? av.Av.FgFactionColor : av.Av.BgFactionColor;
+                        def.FactionColor == FactionColor.Foreground ? 
+                        av.Av.FgFactionColor == Vector4.Zero ? new Vector4(0f, 0f, 0f, 1f) * def.Color : av.Av.FgFactionColor * def.Color :
+                        av.Av.BgFactionColor == Vector4.Zero ? new Vector4(0f, 0f, 0f, 1f) * def.Color : av.Av.BgFactionColor * def.Color;
                     b.Reflectivity = 0;
                     b.CustomViewProjection = -1;
                     b.ParentID = uint.MaxValue;
