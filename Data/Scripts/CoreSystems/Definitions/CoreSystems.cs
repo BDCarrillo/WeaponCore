@@ -117,7 +117,7 @@ namespace CoreSystems.Support
 
         internal WeaponConstants WConst;
 
-        public readonly MyStringHash MuzzlePartName;
+        public MyStringHash MuzzlePartName;
         public readonly MyStringHash AzimuthPartName;
         public readonly MyStringHash ElevationPartName;
         public readonly MyStringHash SpinPartName;

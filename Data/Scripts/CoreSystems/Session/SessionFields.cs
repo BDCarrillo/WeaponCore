@@ -323,6 +323,7 @@ namespace CoreSystems
         internal List<SupportDefinition> SupportDefinitions = new List<SupportDefinition>();
         internal DictionaryValuesReader<MyDefinitionId, MyDefinitionBase> AllDefinitions;
         internal DictionaryValuesReader<MyDefinitionId, MyAudioDefinition> SoundDefinitions;
+        internal readonly Dictionary<MyDefinitionId, float> TurretToRange = new Dictionary<MyDefinitionId, float>();
         internal Color[] HeatEmissives;
 
         internal ControlQuery ControlRequest;
@@ -524,6 +525,7 @@ namespace CoreSystems
         internal bool AdvSync;
         internal bool AdvSyncServer;
         internal bool AdvSyncClient;
+        internal bool EnableVanillaToWCConversions;
 
         public const string WC_NAMESPACE = "wc";
         public const string WC_DUMBTAG = "dumb";
@@ -550,7 +552,7 @@ namespace CoreSystems
         };
 
 
-        internal readonly HashSet<string> VanillaWeaponCompatible = new HashSet<string>()
+        public readonly HashSet<string> VanillaWeaponCompatible = new HashSet<string>()
         {
             "Large_SC_LaserDrillTurret",
             "LargeFlareLauncher",
