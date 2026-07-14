@@ -209,6 +209,7 @@ namespace CoreSystems.Settings
             [ProtoMember(24)] public float SmallGridDamageMultiplier = 1;
             [ProtoMember(25)] public bool ProhibitHUDPainter = false;
             [ProtoMember(26)] public bool ProhibitShooting = false;
+            [ProtoMember(27)] public bool DisableVanillaConversion = false;
 
         }
 

@@ -357,10 +357,16 @@ namespace CoreSystems
                 var searchLight = t as MySearchlightDefinition;
                 var turretBase = t as MyLargeTurretBaseDefinition;
                 if (turretBase != null)
+                {
+                    TurretToRange[turretBase.Id] = turretBase.MaxRangeMeters;
                     turretBase.MaxRangeMeters = 0.1f;
+                }
 
                 if (searchLight != null)
+                {
+                    TurretToRange[searchLight.Id] = searchLight.MaxRangeMeters;
                     searchLight.MaxRangeMeters = 0.1f;
+                }
             }
 
             if (!LogInit)

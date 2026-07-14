@@ -21,5 +21,30 @@
         <ProjectileTrailProbability>0</ProjectileTrailProbability>
       </ProjectileProperties>
     </Ammo>
+	  <Ammo xsi:type="MyObjectBuilder_MissileAmmoDefinition">
+		  <Id>
+			  <TypeId>AmmoDefinition</TypeId>
+			  <SubtypeId>Blank_Missile</SubtypeId>
+		  </Id>
+		  <BasicProperties>
+			  <DesiredSpeed>0</DesiredSpeed>
+			  <SpeedVariance>0</SpeedVariance>
+			  <MaxTrajectory>0</MaxTrajectory>
+			  <IsExplosive>true</IsExplosive>
+			  <BackkickForce>0</BackkickForce>
+			  <PhysicalMaterial>Missile</PhysicalMaterial>
+		  </BasicProperties>
+		  <MissileProperties>
+			  <MissileMass>1</MissileMass>
+			  <MissileExplosionRadius>0</MissileExplosionRadius>
+			  <MissileModelName>Models\Weapons\Projectile_Missile.mwm</MissileModelName>
+			  <MissileAcceleration>0</MissileAcceleration>
+			  <MissileInitialSpeed>0</MissileInitialSpeed>
+			  <MissileSkipAcceleration>false</MissileSkipAcceleration>
+			  <MissileExplosionDamage>0</MissileExplosionDamage>
+			  <MissileGravityEnabled>false</MissileGravityEnabled>
+			  <MissileTrailEffect>null</MissileTrailEffect>
+		  </MissileProperties>
+	  </Ammo>
   </Ammos>
 </Definitions>

@@ -7,6 +7,7 @@ using CoreSystems.Support;
 using Sandbox.Definitions;
 using Sandbox.Game;
 using Sandbox.ModAPI;
+using Scripts;
 using VRage;
 using VRage.Game;
 using VRage.Input;
@@ -124,6 +125,8 @@ namespace CoreSystems
         {
             if (Inited) return;
             Inited = true;
+
+           
             
             MpActive = MyAPIGateway.Multiplayer.MultiplayerActive;
             IsServer = MyAPIGateway.Multiplayer.IsServer;
@@ -137,6 +140,20 @@ namespace CoreSystems
 
             MyAPIGateway.GridGroups.OnGridGroupCreated += GridGroupsOnOnGridGroupCreated;
             MyAPIGateway.GridGroups.OnGridGroupDestroyed += GridGroupsOnOnGridGroupDestroyed;
+
+
+
+            if (EnableVanillaToWCConversions)
+            {
+                var defs = Parts.AutoGenerateOtherPartDefs();
+                if (defs.Length > 0)
+                {
+                    PickDef(new ContainerDefinition
+                    {
+                        WeaponDefs = defs,
+                    });
+                }
+            }
 
             CompileProjectileTags();
             CompileWeaponStructures();

@@ -1150,6 +1150,8 @@ namespace CoreSystems
                     WaterMod = true;
                 else if (mod.PublishedFileId == 3514216428 || mod.GetPath().Contains("AppData\\Roaming\\SpaceEngineers\\Mods\\NerdShieldsFramework"))
                     NerdShieldMod = true;
+                if (mod.Name.Contains("VanillaToWCConverter") || mod.PublishedFileId == 3763050326)
+                    EnableVanillaToWCConversions = true;
             }
 
             SuppressWc = LocalVersion ? false : !SUtils.ModActivate(ModContext, Session);

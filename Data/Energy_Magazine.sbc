@@ -19,5 +19,24 @@
       <Capacity>1</Capacity>
       <AmmoDefinitionId Subtype="Blank" />
 	  </AmmoMagazine>
+	  <AmmoMagazine>
+		  <Id>
+			  <TypeId>AmmoMagazine</TypeId>
+			  <SubtypeId>Energy_Missile</SubtypeId>
+		  </Id>
+		  <DisplayName>Energy</DisplayName>
+		  <Icon>Textures\GUI\Icons\component\BatteryComponent.dds</Icon>
+		  <Size>
+			  <X>0.25</X>
+			  <Y>0.2</Y>
+			  <Z>0.2</Z>
+		  </Size>
+		  <Mass>1</Mass>
+		  <Volume>1</Volume>
+		  <Model>Models\Weapons\Projectile_Missile.mwm</Model>
+		  <PhysicalMaterial>Ammo</PhysicalMaterial>
+		  <Capacity>1</Capacity>
+		  <AmmoDefinitionId Subtype="Blank_Missile"/>
+	  </AmmoMagazine>
   </AmmoMagazines>
 </Definitions>
