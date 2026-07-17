@@ -1362,7 +1362,13 @@ namespace CoreSystems.Api
             var comp = weaponBlock.Components.Get<CoreComponent>() as Weapon.WeaponComponent;
             if (comp?.Platform != null && comp.Platform.State == Ready && comp.MaxHeat > 0 && comp.Platform.Weapons.Count > weaponId)
             {
-                comp.Platform.Weapons[weaponId].PartState.Heat = heat;
+                var pstate = comp.Platform.Weapons[weaponId].PartState;
+                pstate.Heat = heat;
+
+                comp.CurrentHeat = 0; // why did difference not work?
+                foreach (var wep in comp.Platform.Weapons)
+                    comp.CurrentHeat += wep.PartState.Heat;
+
                 return true;
             }
             return false;
