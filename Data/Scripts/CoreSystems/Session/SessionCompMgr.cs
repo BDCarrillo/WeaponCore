@@ -35,7 +35,7 @@ namespace CoreSystems
             BoundingSphereD s;
             MyOrientedBoundingBoxD blockBox;
 
-            if (cube is IMySearchlight)
+            if (cube is IMySearchlight || cube.Closed)
                 return false;
 
             SUtils.GetBlockOrientedBoundingBox(cube, out blockBox);

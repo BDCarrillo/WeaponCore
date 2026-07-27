@@ -787,7 +787,7 @@ namespace CoreSystems.Support
                                 continue;
                             }
 
-                            if (ent is MyPlanet)
+                            if (ent is MyPlanet || ent.MarkedForClose || ent.Closed)
                             {
                                 if (isFromManager)
                                 {
