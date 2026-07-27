@@ -274,7 +274,7 @@ namespace CoreSystems.Projectiles
                 {
                     var targetAi = ai.TargetAis[t];
 
-                    if (targetAi.PointDefense)
+                    if (targetAi.PointDefense && !targetAi.TopEntity.MarkedForClose)
                     {
                         var targetSphereReal = targetAi.TopEntity.PositionComp.WorldVolume;
 
