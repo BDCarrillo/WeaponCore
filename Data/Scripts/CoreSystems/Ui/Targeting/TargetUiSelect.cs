@@ -166,7 +166,7 @@ namespace WeaponCore.Data.Scripts.CoreSystems.Ui.Targeting
                     break;
                 }
                 closestEnt = hit.HitEntity.GetTopMostParent() as MyEntity;
-                if (closestEnt == null)
+                if (closestEnt == null || closestEnt.MarkedForClose)
                     continue;
 
 
@@ -579,7 +579,7 @@ namespace WeaponCore.Data.Scripts.CoreSystems.Ui.Targeting
             foreach (var info in _masterTargets.Keys)
             {
                 var hit = info as MyCubeGrid;
-                if (hit == null) continue;
+                if (hit == null || info.MarkedForClose) continue;
                 var ray = new RayD(origin, dir);
 
                 var entVolume = info.PositionComp.WorldVolume;

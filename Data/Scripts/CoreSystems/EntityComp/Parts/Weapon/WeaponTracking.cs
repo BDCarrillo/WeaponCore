@@ -319,6 +319,9 @@ namespace CoreSystems.Platform
             var pTarget = target.TargetObject as Projectile;
             var tEntity = target.TargetObject as MyEntity;
 
+            if (tEntity.MarkedForClose)
+                return false;
+
             Ai.FakeTarget.FakeWorldTargetInfo fakeTargetInfo = null;
             if (w.Comp.FakeMode && w.ValidFakeTargetInfo(baseData.State.PlayerId, out fakeTargetInfo))
                 targetCenter = fakeTargetInfo.WorldPosition;
