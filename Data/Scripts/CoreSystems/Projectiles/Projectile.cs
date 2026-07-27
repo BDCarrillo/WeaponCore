@@ -195,12 +195,14 @@ namespace CoreSystems.Projectiles
                     HadTarget = HadTargetState.Fake;
                     break;
                 case Target.TargetStates.IsEntity:
-                    if (eTarget == null)
+                    if (eTarget == null || eTarget.Closed)
                     {
                         HadTarget = HadTargetState.None;
                         Info.Target.TargetState = Target.TargetStates.None;
                         TargetPosition = Vector3D.Zero;
-                        Log.Line($"ProjectileStart had invalid entity target state, isFragment: {Info.IsFragment} - ammo:{ammoDef.AmmoRound} - weapon:{Info.Weapon.System.ShortName}");
+                        if (eTarget == null)
+                            Log.Line($"ProjectileStart had invalid entity target state, isFragment: {Info.IsFragment} - ammo:{ammoDef.AmmoRound} - weapon:{Info.Weapon.System.ShortName}");
+                        
                         break;
                     }
 
