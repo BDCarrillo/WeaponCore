@@ -2,6 +2,8 @@
 using CoreSystems.Platform;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
+using VRage.Game.Models;
+using VRage.Utils;
 using VRageMath;
 using static CoreSystems.Support.CoreComponent;
 
@@ -59,12 +61,12 @@ namespace CoreSystems.Support
         private bool _failed = true;
         internal void UpdateModel()
         {
-            if (_entity == null || _entity.MarkedForClose)
+            if (_entity == null || _entity.MarkedForClose || _entity.Render == null)
                 return;
 
             _cachedModel = _entity.Model;
             _cachedSubpart = _entity;
-            _cachedSubpartModel = _cachedSubpart?.Model;
+            _cachedSubpartModel = _cachedSubpart.Model;
             for (var i = 0; i < _path.Length - 1; i++)
             {
                 MyEntitySubpart part;
@@ -112,7 +114,19 @@ namespace CoreSystems.Support
 
                 if (_part == null || _part.BaseComp.TypeSpecific != CoreComponent.CompTypeSpecific.Phantom) {
 
-                    if (!(_cachedModel == _entity?.Model && _cachedSubpartModel == _cachedSubpart?.Model)) UpdateModel();
+                    IMyModel endModel = null;
+                    if (_entity?.Render != null)
+                    {
+                        endModel = _entity.Model;
+                    }
+                    
+                    IMyModel subModel = null;
+                    if (_cachedSubpart?.Render != null)
+                    {
+                        subModel = _cachedSubpart.Model;
+                    }
+
+                    if (_cachedModel != endModel || _cachedSubpartModel != subModel) UpdateModel();
 
                     if (_entity == null || _entity.MarkedForClose || _cachedSubpart == null || _cachedSubpart.Closed)
                     {
