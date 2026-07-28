@@ -114,9 +114,9 @@ namespace CoreSystems.Support
 
                     if (!(_cachedModel == _entity?.Model && _cachedSubpartModel == _cachedSubpart?.Model)) UpdateModel();
 
-                    if (_entity == null || _entity.MarkedForClose || _cachedSubpart == null)
+                    if (_entity == null || _entity.MarkedForClose || _cachedSubpart == null || _cachedSubpart.Closed)
                     {
-                        Log.Line("DummyInfo invalid");
+                        //Log.Line("DummyInfo invalid");
                         return new DummyInfo();
                     }
 
