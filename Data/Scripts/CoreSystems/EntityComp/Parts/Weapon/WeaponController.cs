@@ -259,12 +259,6 @@ namespace CoreSystems.Platform
 
         internal void UpdateWeaponHeat(object o = null)
         {
-            if (Comp.Cube.Closed)
-            {
-                return;
-            }
-
-
             if (!System.ProhibitCoolingWhenOff || System.ProhibitCoolingWhenOff && Comp.Cube.IsWorking)
             {
                 var hsRateMod = HsRate * (PartState.Overheated && System.HeatSinkRateOverheatMult != 0 ? System.HeatSinkRateOverheatMult : 1f) + (float)Comp.HeatLoss;
