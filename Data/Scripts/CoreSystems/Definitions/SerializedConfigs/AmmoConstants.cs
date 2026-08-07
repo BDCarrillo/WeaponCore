@@ -263,6 +263,7 @@ namespace CoreSystems.Support
         public readonly bool OverrideWeaponEffect;
         public readonly bool IgnoreAntiSmarts;
         public readonly bool GridsTargetSeekersTargetingThis;
+        public readonly bool Targetable;
         public readonly float LargeGridDmgScale;
         public readonly float SmallGridDmgScale;
         public readonly float CharacterDmgScale;
@@ -411,6 +412,9 @@ namespace CoreSystems.Support
 
                     if (hasGuidance && ammoType.Trajectory.Smarts.OverideTarget)
                         fragTargetOverride = true;
+
+                    if (ammoType.Health > 0)
+                        Targetable = true;
                 }
             }
 
@@ -600,6 +604,22 @@ namespace CoreSystems.Support
             PFlags(ammo, out ProjectileTags);
             ComputeAdvBillboards(ammo.AmmoDef, out AdvBillboardSettings, out DrawAdvBillboards);
             PreComputedMath = new PreComputedMath(ammo, this);
+
+
+            Targetable |= Health > 0;
+
+            if (!Targetable && AmmoPattern != null)
+            {
+                foreach (var a in AmmoPattern)
+                {
+                    if (a != null && a.Health > 0)
+                    {
+                        Targetable = true;
+                        break;
+                    }
+                }
+            }
+            
         }
 
         internal void ComputeAdvBillboards(AmmoDef ammo, out AdvBillboards billboards, out bool DrawAdvBillboards)
@@ -1743,7 +1763,8 @@ namespace CoreSystems.Support
                 {
                     var tempDmg = GetShrapnelDamage(fragmentAmmo, parentFragments, shotsPerSec, parentFragments);
                     var fragFrags = 1.0f;
-                    if (parentAmmo.Fragment.Fragments > 0) fragFrags = parentAmmo.Fragment.Fragments;
+                    if (parentAmmo.Fragment.Fragments > 0)
+                        fragFrags = parentAmmo.Fragment.Fragments;
                     if (parentAmmo.Fragment.TimedSpawns.Enable && parentAmmo.Fragment.TimedSpawns.GroupSize > 0)
                     {
                         var b = parentAmmo.Fragment.TimedSpawns;

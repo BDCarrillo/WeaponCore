@@ -417,7 +417,7 @@ namespace CoreSystems.Support
                                 }
                             }
                         }
-                        else if (w.ActiveAmmoDef.AmmoDef.Const.Health == 0)
+                        else if (!w.ActiveAmmoDef.AmmoDef.Const.Targetable)
                         {
                             stringBuilder.Append($"\n{Localization.GetText("WeaponInfoAmmoUntargetable")}");
                         }
