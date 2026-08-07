@@ -608,11 +608,11 @@ namespace CoreSystems.Support
 
             Targetable |= Health > 0;
 
-            if (!Targetable)
+            if (!Targetable && AmmoPattern != null)
             {
                 foreach (var a in AmmoPattern)
                 {
-                    if (a.Health > 0)
+                    if (a != null && a.Health > 0)
                     {
                         Targetable = true;
                         break;
