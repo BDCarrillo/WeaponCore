@@ -383,7 +383,7 @@ namespace CoreSystems.Support
             internal readonly bool SmallGrid;
             internal readonly bool SuspectedDrone;
 
-            public DetectInfo(MyEntity target, MyDetectedEntityInfo entInfo, int partCount, int fatCount, bool suspectedDrone, bool loneWarhead)
+            public DetectInfo(MyEntity target, MyDetectedEntityInfo entInfo, int partCount, int fatCount, bool suspectedDrone, bool interesting)
             {
                 Target = target;
                 EntInfo = entInfo;
@@ -408,9 +408,9 @@ namespace CoreSystems.Support
                             armed = true;
                     }
                 }
-                else if (target is MyMeteor || target is IMyCharacter || loneWarhead) armed = true;
+                else if (target is MyMeteor || target is IMyCharacter) armed = true;
 
-                Armed = armed;
+                Armed = interesting || armed;
                 IsGrid = isGrid;
                 LargeGrid = largeGrid;
                 SmallGrid = isGrid && !largeGrid;

@@ -429,7 +429,7 @@ namespace CoreSystems
 
                                 newTypeMap[Offense].Add(fat);
                             }
-                            else if (upgrade != null || fat is IMyRadioAntenna || fat is IMyLaserAntenna || remoteControl != null || fat is IMyShipToolBase || fat is IMyMedicalRoom || fat is IMyCameraBlock || flightAi != null)
+                            else if (upgrade != null || fat is IMyRadioAntenna || fat is IMyLaserAntenna || remoteControl != null || fat is IMyShipToolBase || fat is IMyMedicalRoom || fat is IMyCameraBlock || flightAi != null || cockpit != null && !cockpit.EnableShipControl)
                             {
                                 if (remoteControl != null)
                                     ++remote;

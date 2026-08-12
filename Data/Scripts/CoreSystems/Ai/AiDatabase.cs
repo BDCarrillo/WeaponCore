@@ -1,6 +1,7 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
+using System.Collections.Generic;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
@@ -96,7 +97,22 @@ namespace CoreSystems.Support
                         if (Session.I.Tick - topMap.PowerCheckTick > 600)
                             Session.I.CheckGridPowerState(grid, topMap);
 
-                        var loneWarhead = topMap.Warheads && fatCount == 1;
+                        var interesting = (topMap.Warheads && fatCount == 1) || topMap.PlayerControllers.Count > 0;
+
+                        if (topMap.PlayerControllers.Count > 0 && grid.BigOwners.Count == 0)
+                        {
+                            var topOwner = topMap.PlayerControllers.FirstPair().Key;
+                            var relationship = topOwner != long.MaxValue ? MyIDModule.GetRelationPlayerBlock(AiOwner, topOwner, MyOwnershipShareModeEnum.Faction) : MyRelationsBetweenPlayerAndBlock.NoOwnership;
+                            var type = grid.GridSizeEnum != MyCubeSize.Small ? Sandbox.ModAPI.Ingame.MyDetectedEntityType.LargeGrid : Sandbox.ModAPI.Ingame.MyDetectedEntityType.SmallGrid;
+                            entInfo = new Sandbox.ModAPI.Ingame.MyDetectedEntityInfo(grid.EntityId, string.Empty, type, null, MatrixD.Zero, Vector3.Zero, relationship, new BoundingBoxD(), Session.I.Tick);
+                            switch (entInfo.Relationship)
+                            {
+                                case MyRelationsBetweenPlayerAndBlock.Owner:
+                                case MyRelationsBetweenPlayerAndBlock.FactionShare:
+                                case MyRelationsBetweenPlayerAndBlock.Friends:
+                                    continue;
+                            }
+                        }
 
                         int partCount;
                         Ai targetAi;
@@ -108,8 +124,7 @@ namespace CoreSystems.Support
                         }
                         else
                             partCount = topMap.MostBlocks;
-
-                        NewEntities.Add(new DetectInfo(ent, entInfo, partCount, !loneWarhead ? fatCount : 2, topMap.SuspectedDrone, loneWarhead));// bump warhead to 2 fatblocks so its not ignored by targeting
+                        NewEntities.Add(new DetectInfo(ent, entInfo, partCount, interesting && fatCount < 2 ? 2 : fatCount, topMap.SuspectedDrone, interesting));// bump warhead or occupied fat to 2 fatblocks so its not ignored by targeting
                         ValidGrids.Add(ent);
                     }
                     else NewEntities.Add(new DetectInfo( ent, entInfo, 1, 0, false, false));
