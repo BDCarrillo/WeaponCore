@@ -766,13 +766,10 @@ namespace CoreSystems
                         var aoeScaledDmg = (float)((aoeDamageFall * (detActive ? detDamageScale : areaDamageScale)) * damageScale * gridSizeBuff);
                         bool deadBlock = false;
                         //Check for end of primary life
-                        if (primaryDamage && scaledDamage <= blockHp)
+                        if (primaryDamage && scaledDamage < blockHp)
                         {
                             t.DamageDonePri += (long)scaledDamage;
-                            if (useBaseCutoff)
-                                basePool -= (float)(scaledDamage / (baseScale == 0d ? 0.0000001 : baseScale));
-                            else
-                                basePool = 0;
+                            basePool -= (float)(scaledDamage / (baseScale == 0d ? 0.0000001 : baseScale));
                             t.BaseDamagePool = basePool;
                             detRequested = basePool <= 0 && hasDet;
                         }
