@@ -759,26 +759,25 @@ namespace CoreSystems
                         var primaryDamage = rootStep && block == rootBlock && !detActive;//limits application to first run w/AOE, suppresses with detonation
 
                         var baseScale = damageScale * directDamageScale * smallVsLargeBuff * gridSizeBuff;
-                        var scaledDamage = (float)((useBaseCutoff ? cutoff : basePool) * baseScale);
+                        var scaledDamage = (float)(basePool * baseScale);
+                        var scaledCutoff = (float)(cutoff * baseScale);
+                        if (useBaseCutoff && scaledDamage > scaledCutoff)
+                            scaledDamage = scaledCutoff;
                         var aoeScaledDmg = (float)((aoeDamageFall * (detActive ? detDamageScale : areaDamageScale)) * damageScale * gridSizeBuff);
                         bool deadBlock = false;
                         //Check for end of primary life
-                        if (primaryDamage && scaledDamage <= blockHp)
+                        if (primaryDamage && scaledDamage < blockHp)
                         {
                             t.DamageDonePri += (long)scaledDamage;
-                            if (useBaseCutoff)
-                                basePool -= scaledDamage;
-                            else
-                                basePool = 0;
+                            basePool -= (float)(scaledDamage / (baseScale == 0d ? 0.0000001 : baseScale));
                             t.BaseDamagePool = basePool;
-                            detRequested = hasDet;
+                            detRequested = basePool <= 0 && hasDet;
                         }
                         else if (primaryDamage)
                         {
                             t.DamageDonePri += (long)scaledDamage;
                             deadBlock = true;
-                            var scale = baseScale == 0d ? 0.0000001 : baseScale;
-                            basePool -= (float)(blockHp / scale);
+                            basePool -= (float)(blockHp / (baseScale == 0d ? 0.0000001 : baseScale));
                         }
 
                         if (countBlocksAsObjects && (primaryDamage || !primaryDamage && countBlocksAsObjects && !t.AmmoDef.ObjectsHit.SkipBlocksForAOE))
