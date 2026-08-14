@@ -788,6 +788,38 @@ namespace CoreSystems
             else Log.Line("SendOverRidesClientComp should only be called on clients");
         }
 
+        internal void SendWeaponOverridesClientComp(Weapon.WeaponComponent comp, WeaponOverrideSetting setting, int value)
+        {
+            if (IsClient)
+            {
+                PacketsToServer.Add(new WeaponOverridesPacket
+                {
+                    PType = PacketType.WeaponOverridesUpdate,
+                    EntityId = comp.CoreEntity.EntityId,
+                    SenderId = MultiplayerId,
+                    Setting = setting,
+                    Value = value,
+                });
+            }
+            else Log.Line("SendWeaponOverridesClientComp should only be called on clients");
+        }
+
+        internal void SendUserTagClientComp(Weapon.WeaponComponent comp, string tag, bool enabled)
+        {
+            if (IsClient)
+            {
+                PacketsToServer.Add(new UserTagPacket
+                {
+                    PType = PacketType.UserTagUpdate,
+                    EntityId = comp.CoreEntity.EntityId,
+                    SenderId = MultiplayerId,
+                    Tag = tag,
+                    Enabled = enabled,
+                });
+            }
+            else Log.Line("SendUserTagClientComp should only be called on clients");
+        }
+
         internal void SendDroneClientComp(CoreComponent comp, string settings, long value)
         {
             if (IsClient)

@@ -19,6 +19,48 @@ using static CoreSystems.Support.WeaponDefinition;
 
 namespace CoreSystems.Platform
 {
+    public enum WeaponOverrideSetting
+    {
+        Invalid = 0,
+        MaxSize = 1,
+        MinSize = 2,
+        SubSystems = 3,
+        MovementModes = 4,
+        ControlModes = 5,
+        FocusSubSystem = 6,
+        FocusTargets = 7,
+        Unowned = 8,
+        Friendly = 9,
+        Meteors = 10,
+        Grids = 11,
+        Biologicals = 12,
+        Projectiles = 13,
+        Neutrals = 14,
+        Repel = 15,
+        CameraChannel = 16,
+        BurstCount = 17,
+        BurstDelay = 18,
+        SequenceId = 19,
+        WeaponGroupId = 20,
+        ShootMode = 21,
+        LeadGroup = 22,
+        ArmedTimer = 23,
+        Armed = 24,
+        Debug = 25,
+        ShareFireControl = 26,
+        Override = 27,
+        LargeGrid = 28,
+        SmallGrid = 29,
+        SupportingPD = 30,
+        ObjectiveMode = 31,
+        TargetClosest = 32,
+        EnableFireDistribution = 33,
+        TurnCost = 34,
+        MinLockTime = 35,
+        EnableProjectileTagOverrides = 36,
+        UserPTagWhitelistSys = 37,
+    }
+
     public partial class Weapon
     {
         public partial class WeaponComponent : CoreComponent
@@ -545,7 +587,7 @@ namespace CoreSystems.Platform
                     Session.I.SendState(comp);
             }
 
-            internal static void RequestSetValue(WeaponComponent comp, string setting, int value, long playerId)
+            internal static void RequestSetValue(WeaponComponent comp, WeaponOverrideSetting setting, int value, long playerId)
             {
                 if (Session.I.IsServer)
                 {
@@ -553,34 +595,68 @@ namespace CoreSystems.Platform
                 }
                 else if (Session.I.IsClient)
                 {
-                    Session.I.SendOverRidesClientComp(comp, setting, value);
+                    Session.I.SendWeaponOverridesClientComp(comp, setting, value);
                 }
             }
 
-            internal static void SetValue(WeaponComponent comp, string setting, int v, long playerId)
+            internal static void RequestSetUserTag(WeaponComponent comp, string tag, bool enabled, long playerId)
+            {
+                SetUserTag(comp, tag, enabled, playerId);
+                if (Session.I.IsClient)
+                {
+                    Session.I.SendUserTagClientComp(comp, tag, enabled);
+                }
+            }
+
+            internal static void SetUserTag(WeaponComponent comp, string tagStr, bool enabled, long playerId)
+            {
+                var o = comp.Data.Repo.Values.Set.Overrides;
+
+                uint tag;
+                if (Session.I.InternalTagToInt.TryGetValue(tagStr, out tag))
+                {
+                    if (enabled && comp.PrimaryWeapon.System.WConst.ValidUserProjectileTags.Contains(tag))
+                    {
+                        o.UserProjectileTagsInternal.Add(tag);
+                        o.UserProjectileTags.Add(tagStr);
+                    }
+                    else
+                    {
+                        o.UserProjectileTagsInternal.Remove(tag);
+                        o.UserProjectileTags.Remove(tagStr);
+                    }
+                }
+
+                ResetCompState(comp, playerId, false);
+
+                if (Session.I.MpActive)
+                    Session.I.SendComp(comp);
+            }
+
+            internal static void SetValue(WeaponComponent comp, WeaponOverrideSetting setting, int v, long playerId)
             {
                 var o = comp.Data.Repo.Values.Set.Overrides;
                 var enabled = v > 0;
                 var clearTargets = false;
                 switch (setting)
                 {
-                    case "MaxSize":
+                    case WeaponOverrideSetting.MaxSize:
                         o.MaxSize = v;
                         clearTargets = true;
                         break;
-                    case "MinSize":
+                    case WeaponOverrideSetting.MinSize:
                         o.MinSize = v;
                         clearTargets = true;
                         break;
-                    case "SubSystems":
+                    case WeaponOverrideSetting.SubSystems:
                         o.SubSystem = (WeaponDefinition.TargetingDef.BlockTypes)v;
                         clearTargets = true;
                         break;
-                    case "MovementModes":
+                    case WeaponOverrideSetting.MovementModes:
                         o.MoveMode = (ProtoWeaponOverrides.MoveModes)v;
                         clearTargets = true;
                         break;
-                    case "ControlModes":
+                    case WeaponOverrideSetting.ControlModes:
                         o.Control = (ProtoWeaponOverrides.ControlModes)v;
 
                         if (o.Control == ProtoWeaponOverrides.ControlModes.Painter && Session.I.Settings.Enforcement.ProhibitHUDPainter)
@@ -590,147 +666,123 @@ namespace CoreSystems.Platform
                             Session.I.RequestNotify($"Targeting Mode [{o.Control}]", 3000, "White", playerId, true);
                         clearTargets = true;
                         break;
-                    case "FocusSubSystem":
+                    case WeaponOverrideSetting.FocusSubSystem:
                         o.FocusSubSystem = enabled;
                         break;
-                    case "FocusTargets":
+                    case WeaponOverrideSetting.FocusTargets:
                         o.FocusTargets = enabled;
                         clearTargets = true;
                         break;
-                    case "Unowned":
+                    case WeaponOverrideSetting.Unowned:
                         o.Unowned = enabled;
                         clearTargets = true;
                         break;
-                    case "Friendly":
+                    case WeaponOverrideSetting.Friendly:
                         o.Friendly = enabled;
                         clearTargets = true;
                         break;
-                    case "Meteors":
+                    case WeaponOverrideSetting.Meteors:
                         o.Meteors = enabled;
                         break;
-                    case "Grids":
+                    case WeaponOverrideSetting.Grids:
                         o.Grids = enabled;
                         clearTargets = true;
                         break;
-                    case "Biologicals":
+                    case WeaponOverrideSetting.Biologicals:
                         o.Biologicals = enabled;
                         clearTargets = true;
                         break;
-                    case "Projectiles":
+                    case WeaponOverrideSetting.Projectiles:
                         o.Projectiles = enabled;
                         clearTargets = true;
                         break;
-                    case "Neutrals":
+                    case WeaponOverrideSetting.Neutrals:
                         o.Neutrals = enabled;
                         clearTargets = true;
                         break;
-                    case "Repel":
+                    case WeaponOverrideSetting.Repel:
                         o.Repel = enabled;
                         clearTargets = true;
                         break;
-                    case "CameraChannel":
+                    case WeaponOverrideSetting.CameraChannel:
                         o.CameraChannel = v;
                         break;
-                    case "BurstCount":
+                    case WeaponOverrideSetting.BurstCount:
                         o.BurstCount = v;
                         break;
-                    case "BurstDelay":
+                    case WeaponOverrideSetting.BurstDelay:
                         o.BurstDelay = v;
                         break;
-                    case "SequenceId":
+                    case WeaponOverrideSetting.SequenceId:
 
                         if (o.SequenceId != v)
                             comp.ChangeSequenceId();
 
                         o.SequenceId = v;
                         break;
-                    case "WeaponGroupId":
+                    case WeaponOverrideSetting.WeaponGroupId:
 
                         if (o.WeaponGroupId != v)
                             comp.ChangeWeaponGroup(v);
 
                         o.WeaponGroupId = v;
                         break;
-                    case "ShootMode":
+                    case WeaponOverrideSetting.ShootMode:
                         o.ShootMode = (ShootManager.ShootModes)v;
                         break;
-                    case "LeadGroup":
+                    case WeaponOverrideSetting.LeadGroup:
                         o.LeadGroup = v;
                         break;
-                    case "ArmedTimer":
+                    case WeaponOverrideSetting.ArmedTimer:
                         o.ArmedTimer = v;
                         break;
-                    case "Armed":
+                    case WeaponOverrideSetting.Armed:
                         if (o.Armed && !enabled)
                             comp.ClearBombFuze();
                         o.Armed = enabled;
                         break;
-                    case "Debug":
+                    case WeaponOverrideSetting.Debug:
                         o.Debug = enabled;
                         break;
-                    case "ShareFireControl":
+                    case WeaponOverrideSetting.ShareFireControl:
                         o.ShareFireControl = enabled;
                         break;
-                    case "Override":
+                    case WeaponOverrideSetting.Override:
                         o.Override = enabled;
                         break;
-                    case "LargeGrid":
+                    case WeaponOverrideSetting.LargeGrid:
                         o.LargeGrid = enabled;
                         clearTargets = true;
                         break;
-                    case "SmallGrid":
+                    case WeaponOverrideSetting.SmallGrid:
                         o.SmallGrid = enabled;
                         clearTargets = true;
                         break;
-                    case "SupportingPD":
+                    case WeaponOverrideSetting.SupportingPD:
                         o.SupportingPD = enabled;
                         clearTargets = true;
                         break;
-                    case "ObjectiveMode":
+                    case WeaponOverrideSetting.ObjectiveMode:
                         o.ObjectiveMode = (ProtoWeaponOverrides.ObjectiveModes)v;
                         clearTargets = true;
                         break;
-                    case "TargetClosest":
+                    case WeaponOverrideSetting.TargetClosest:
                         o.TargetClosest = enabled;
                         break;
-                    case "EnableFireDistribution":
+                    case WeaponOverrideSetting.EnableFireDistribution:
                         o.EnableFireDistribution = enabled;
                         break;
-                    case "TurnCost":
+                    case WeaponOverrideSetting.TurnCost:
                         o.TurnCost = v;
                         break;
-                    case "MinLockTime":
+                    case WeaponOverrideSetting.MinLockTime:
                         o.MinLockTime = v;
                         break;
-                    case "EnableProjectileTagOverrides":
+                    case WeaponOverrideSetting.EnableProjectileTagOverrides:
                         o.EnableProjectileTagOverrides = enabled;
                         break;
-                    case "UserPTagWhitelistSys":
+                    case WeaponOverrideSetting.UserPTagWhitelistSys:
                         o.UserPTagWhitelistSys = (TargetingDef.WhitelistSystem)v;
-                        break;
-                    default:
-                        // this COULD be optimized network wise if this was separated out into its own function just sending the override changes
-                        // however thats a lot of effort for something whic will seldomly happen
-                        if (setting.StartsWith("UT_"))
-                        {
-                            var flagStr = setting.Substring(3);
-                            uint tag;
-                            string tagStr;
-                            if (uint.TryParse(flagStr, out tag) && Session.I.IntToTagInternal.TryGetValue(tag, out tagStr))
-                            {
-                                if (enabled && comp.PrimaryWeapon.System.WConst.ValidUserProjectileTags.Contains(tag))
-                                {
-                                    o.UserProjectileTagsInternal.Add(tag);
-                                    o.UserProjectileTags.Add(tagStr);
-                                    
-                                }
-                                else
-                                {
-                                    o.UserProjectileTagsInternal.Remove(tag);
-                                    o.UserProjectileTags.Remove(tagStr);
-                                }
-                            }
-                        }
                         break;
                 }
 
@@ -740,39 +792,37 @@ namespace CoreSystems.Platform
                     Session.I.SendComp(comp);
             }
 
-            internal static bool GetThreatValue(WeaponComponent comp, string setting, out bool enabled, out string primaryName)
+            internal static bool GetThreatValue(WeaponComponent comp, WeaponOverrideSetting setting, out bool enabled, out WeaponOverrideSetting primaryName)
             {
                 var o = comp.Data.Repo.Values.Set.Overrides;
                 switch (setting)
                 {
-                    case "Unowned":
-                    case "Other":
-                        primaryName = "Unowned";
+                    case WeaponOverrideSetting.Unowned:
+                        primaryName = WeaponOverrideSetting.Unowned;
                         enabled = o.Unowned;
                         return true;
-                    case "Meteors":
-                        primaryName = "Meteors";
+                    case WeaponOverrideSetting.Meteors:
+                        primaryName = WeaponOverrideSetting.Meteors;
                         enabled = o.Meteors;
                         return true;
-                    case "Grids":
-                        primaryName = "Grids";
+                    case WeaponOverrideSetting.Grids:
+                        primaryName = WeaponOverrideSetting.Grids;
                         enabled = o.Grids;
                         return true;
-                    case "Biologicals":
-                    case "Characters":
-                        primaryName = "Biologicals";
+                    case WeaponOverrideSetting.Biologicals:
+                        primaryName = WeaponOverrideSetting.Biologicals;
                         enabled = o.Biologicals;
                         return true;
-                    case "Projectiles":
-                        primaryName = "Projectiles";
+                    case WeaponOverrideSetting.Projectiles:
+                        primaryName = WeaponOverrideSetting.Projectiles;
                         enabled = o.Projectiles;
                         return true;
-                    case "Neutrals":
-                        primaryName = "Neutrals";
+                    case WeaponOverrideSetting.Neutrals:
+                        primaryName = WeaponOverrideSetting.Neutrals;
                         enabled = o.Neutrals;
                         return true;
                     default:
-                        primaryName = string.Empty;
+                        primaryName = WeaponOverrideSetting.Invalid;
                         enabled = false;
                         return false;
                 }

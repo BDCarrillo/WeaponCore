@@ -404,6 +404,14 @@ namespace CoreSystems
                     ServerOverRidesUpdate(packetObj);
                     break;
                 }
+                case PacketType.WeaponOverridesUpdate: {
+                    ServerWeaponOverridesUpdate(packetObj);
+                    break;
+                }
+                case PacketType.UserTagUpdate: {
+                    ServerUserTagUpdate(packetObj);
+                    break;
+                }
                 case PacketType.RequestDroneSet:
                 {
                     ServerDroneUpdate(packetObj);

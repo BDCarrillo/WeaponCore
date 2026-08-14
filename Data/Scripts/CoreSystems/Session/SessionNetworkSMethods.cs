@@ -217,10 +217,40 @@ namespace CoreSystems
             var comp = ent?.Components.Get<CoreComponent>();
             if (comp?.Ai == null || comp.Platform.State != CorePlatform.PlatformState.Ready) return Error(data, Msg("BaseComp", comp != null), Msg("Ai", comp?.Ai != null), Msg("Ai", comp?.Platform.State == CorePlatform.PlatformState.Ready));
 
-            var wComp = comp as Weapon.WeaponComponent;
-            if (wComp != null) Weapon.WeaponComponent.RequestSetValue(wComp, overRidesPacket.Setting, overRidesPacket.Value, SteamToPlayer[overRidesPacket.SenderId]);
             var cComp = comp as ControlSys.ControlComponent;
             if (cComp != null) ControlSys.ControlComponent.RequestSetValue(cComp, overRidesPacket.Setting, overRidesPacket.Value, SteamToPlayer[overRidesPacket.SenderId]);
+
+            data.Report.PacketValid = true;
+
+            return true;
+        }
+
+        private bool ServerWeaponOverridesUpdate(PacketObj data)
+        {
+            var packet = data.Packet;
+            var overRidesPacket = (WeaponOverridesPacket)packet;
+            var ent = MyEntities.GetEntityByIdOrDefault(packet.EntityId, null, true);
+            var comp = ent?.Components.Get<CoreComponent>();
+            if (comp?.Ai == null || comp.Platform.State != CorePlatform.PlatformState.Ready) return Error(data, Msg("BaseComp", comp != null), Msg("Ai", comp?.Ai != null), Msg("Ai", comp?.Platform.State == CorePlatform.PlatformState.Ready));
+
+            var wComp = comp as Weapon.WeaponComponent;
+            if (wComp != null) Weapon.WeaponComponent.RequestSetValue(wComp, overRidesPacket.Setting, overRidesPacket.Value, SteamToPlayer[overRidesPacket.SenderId]);
+
+            data.Report.PacketValid = true;
+
+            return true;
+        }
+
+        private bool ServerUserTagUpdate(PacketObj data)
+        {
+            var packet = data.Packet;
+            var userTagPacket = (UserTagPacket)packet;
+            var ent = MyEntities.GetEntityByIdOrDefault(packet.EntityId, null, true);
+            var comp = ent?.Components.Get<CoreComponent>();
+            if (comp?.Ai == null || comp.Platform.State != CorePlatform.PlatformState.Ready) return Error(data, Msg("BaseComp", comp != null), Msg("Ai", comp?.Ai != null), Msg("Ai", comp?.Platform.State == CorePlatform.PlatformState.Ready));
+
+            var wComp = comp as Weapon.WeaponComponent;
+            if (wComp != null) Weapon.WeaponComponent.RequestSetUserTag(wComp, userTagPacket.Tag, userTagPacket.Enabled, SteamToPlayer[userTagPacket.SenderId]);
 
             data.Report.PacketValid = true;
 
