@@ -414,6 +414,7 @@ namespace CoreSystems
             IMySlimBlock rootBlock = null;
             var d = t.AmmoDef.DamageScales;
             var armor = t.AmmoDef.DamageScales.Armor;
+            var cutoffArmor = t.AmmoDef.DamageScales.ArmorForCutoff;
             //Target/targeting Info
             var attackerId = t.Weapon.Comp.CoreEntity.EntityId;
             var maxObjects = t.AmmoDef.Const.MaxObjectsHit;
@@ -667,6 +668,7 @@ namespace CoreSystems
                         double directDamageScale = Settings.Enforcement.DirectDamageModifer * hitEnt.DamageMulti;
                         double areaDamageScale = Settings.Enforcement.AreaDamageModifer * hitEnt.DamageMulti;
                         double detDamageScale = areaDamageScale;
+                        double cutoffDamageScale = 1f;
 
                         //Damage scaling for blocktypes
                         if (aConst.DamageScaling || !MyUtils.IsEqual(blockDmgModifier, 1f) || !MyUtils.IsEqual(gridDamageModifier, 1f))
@@ -690,6 +692,14 @@ namespace CoreSystems
                                     damageScale *= aConst.SmallGridDmgScale;
                             }
 
+                            if (aConst.GridCutoffScaling)
+                            {
+                                if (largeGrid)
+                                    cutoffDamageScale *= aConst.LargeGridCutoffDmgScale; // these are set to 1 in aConst if not set
+                                else
+                                    cutoffDamageScale *= aConst.SmallGridCutoffDmgScale;
+                            }
+
                             MyDefinitionBase blockDef = null;
                             if (aConst.ArmorScaling)
                             {
@@ -709,17 +719,38 @@ namespace CoreSystems
                                 }
                             }
 
+                            if (aConst.ArmorCutoffScaling)
+                            {
+                                blockDef = block.BlockDefinition;
+                                var isArmor = AllArmorBaseDefinitions.Contains(blockDef) || CustomArmorSubtypes.Contains(blockDef.Id.SubtypeId);
+                                if (isArmor && cutoffArmor.Armor >= 0)
+                                    cutoffDamageScale *= cutoffArmor.Armor;
+                                else if (!isArmor && cutoffArmor.NonArmor >= 0)
+                                    cutoffDamageScale *= cutoffArmor.NonArmor;
+                                if (isArmor && (cutoffArmor.Light >= 0 || cutoffArmor.Heavy >= 0))
+                                {
+                                    var isHeavy = HeavyArmorBaseDefinitions.Contains(blockDef) || CustomHeavyArmorSubtypes.Contains(blockDef.Id.SubtypeId);
+                                    if (isHeavy && cutoffArmor.Heavy >= 0)
+                                        cutoffDamageScale *= cutoffArmor.Heavy;
+                                    else if (!isHeavy && cutoffArmor.Light >= 0)
+                                        cutoffDamageScale *= cutoffArmor.Light;
+                                }
+                            }
+
                             if (aConst.CustomDamageScales)
                             {
                                 if (blockDef == null)
                                     blockDef = block.BlockDefinition;
-                                float modifier = 1f;
+                                MyTuple<float, float> modifier = new MyTuple<float, float>(1,1);
                                 var found = aConst.CustomBlockDefinitionBasesToScales.TryGetValue(blockDef, out modifier);
                                 var inclusive = t.AmmoDef.DamageScales.Custom.SkipOthers == CustomScalesDef.SkipMode.Inclusive;
                                 var exclusive = t.AmmoDef.DamageScales.Custom.SkipOthers == CustomScalesDef.SkipMode.Exclusive;
 
                                 if ((t.AmmoDef.DamageScales.Custom.SkipOthers == CustomScalesDef.SkipMode.NoSkip || exclusive) && found)
-                                    damageScale *= modifier;
+                                {
+                                    damageScale *= modifier.Item1;
+                                    cutoffDamageScale *= modifier.Item2;
+                                }
                                 else if ((exclusive && !found) || (inclusive && found))
                                     continue;
                             }
@@ -760,9 +791,12 @@ namespace CoreSystems
 
                         var baseScale = damageScale * directDamageScale * smallVsLargeBuff * gridSizeBuff;
                         var scaledDamage = (float)(basePool * baseScale);
-                        var scaledCutoff = (float)(cutoff * baseScale);
+                        var scaledCutoff = (float)(cutoff * cutoffDamageScale * baseScale);
+                        
                         if (useBaseCutoff && scaledDamage > scaledCutoff)
                             scaledDamage = scaledCutoff;
+
+
                         var aoeScaledDmg = (float)((aoeDamageFall * (detActive ? detDamageScale : areaDamageScale)) * damageScale * gridSizeBuff);
                         bool deadBlock = false;
                         //Check for end of primary life

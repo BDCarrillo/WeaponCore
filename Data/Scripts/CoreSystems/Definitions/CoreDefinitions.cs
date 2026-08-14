@@ -774,6 +774,8 @@ namespace CoreSystems.Support
                 [ProtoMember(11)] internal double VoxelHitModifier;
                 [ProtoMember(12)] internal DamageTypes DamageType;
                 [ProtoMember(13)] internal DeformDef Deform;
+                [ProtoMember(14)] internal ArmorDef ArmorForCutoff;
+                [ProtoMember(15)] internal GridSizeDef GridSizeForCutoff;
 
                 [ProtoContract]
                 public struct FallOffDef
@@ -887,6 +889,7 @@ namespace CoreSystems.Support
             {
                 [ProtoMember(1)] internal string SubTypeId;
                 [ProtoMember(2)] internal float Modifier;
+                [ProtoMember(3)] internal float CutoffModifier;
             }
 
             [ProtoContract]
