@@ -15,6 +15,7 @@ using static CoreSystems.Support.WeaponDefinition.AmmoDef.EwarDef;
 using static CoreSystems.Support.WeaponDefinition.AmmoDef.EwarDef.PushPullDef;
 using static CoreSystems.Support.WeaponDefinition.AmmoDef.EwarDef.EwarType;
 using static CoreSystems.Projectiles.Projectiles;
+using VRage;
 
 namespace CoreSystems
 {
@@ -251,10 +252,10 @@ namespace CoreSystems
                     if (aConst.CustomDamageScales)
                     {
                         if (blockDef == null) blockDef = block.BlockDefinition;
-                        float modifier;
+                        MyTuple<float, float> modifier;
                         var found = ammoDef.Const.CustomBlockDefinitionBasesToScales.TryGetValue(blockDef, out modifier);
 
-                        if (found) damageScale *= modifier;
+                        if (found) damageScale *= modifier.Item1;
                         else if (ammoDef.DamageScales.Custom.IgnoreAllOthers) continue;
                     }
                     if (aConst.GridScaling)

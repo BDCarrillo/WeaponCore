@@ -447,7 +447,7 @@ namespace WeaponCore.Data.Scripts.CoreSystems.Ui
             var notPainter = ai.OnlyWeaponComp.Data.Repo.Values.Set.Overrides.Control != ProtoWeaponOverrides.ControlModes.Painter;
             var newValue = notPainter ? 2 : 0;
 
-            Weapon.WeaponComponent.RequestSetValue(ai.OnlyWeaponComp, "ControlModes", newValue, Session.I.PlayerId);
+            Weapon.WeaponComponent.RequestSetValue(ai.OnlyWeaponComp, WeaponOverrideSetting.ControlModes, newValue, Session.I.PlayerId);
         }
     }
 }

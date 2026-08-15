@@ -1167,9 +1167,34 @@ namespace CoreSystems.Api
 
                 foreach (var request in _validRequests)
                 {
+                    WeaponOverrideSetting setting;
+                    switch (request)
+                    {
+                        case WeaponDefinition.TargetingDef.Threat.Projectiles:
+                            setting = WeaponOverrideSetting.Projectiles;
+                            break;
+                        case WeaponDefinition.TargetingDef.Threat.Characters:
+                            setting = WeaponOverrideSetting.Biologicals;
+                            break;
+                        case WeaponDefinition.TargetingDef.Threat.Grids:
+                            setting = WeaponOverrideSetting.Grids;
+                            break;
+                        case WeaponDefinition.TargetingDef.Threat.Neutrals:
+                            setting = WeaponOverrideSetting.Neutrals;
+                            break;
+                        case WeaponDefinition.TargetingDef.Threat.Meteors:
+                            setting = WeaponOverrideSetting.Meteors;
+                            break;
+                        case WeaponDefinition.TargetingDef.Threat.Other:
+                            setting = WeaponOverrideSetting.Unowned;
+                            break;
+                        default:
+                            continue;
+                    }
+
                     bool enabled;
-                    string primaryName;
-                    if (Weapon.WeaponComponent.GetThreatValue(comp, request.ToString(), out enabled, out primaryName))
+                    WeaponOverrideSetting primaryName;
+                    if (Weapon.WeaponComponent.GetThreatValue(comp, setting, out enabled, out primaryName))
                     {
                         Weapon.WeaponComponent.SetValue(comp, primaryName, enabled ? 0 : 1, 0);
                     }

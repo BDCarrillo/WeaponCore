@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using CoreSystems.Platform;
 using CoreSystems.Projectiles;
 using CoreSystems.Settings;
 using CoreSystems.Support;
@@ -35,6 +36,8 @@ namespace CoreSystems
         RequestSetOverload,
         RequestSetRange,
         OverRidesUpdate,
+        WeaponOverridesUpdate,
+        UserTagUpdate,
         AimTargetUpdate,
         PaintedTargetUpdate,
         ActiveControlUpdate,
@@ -120,6 +123,8 @@ namespace CoreSystems
     [ProtoInclude(51, typeof(ClientAmmoRequestPacket))]
     [ProtoInclude(52, typeof(WeaponAmmoPacket))]
     [ProtoInclude(53, typeof(WeaponHeatSyncPacket))]
+    [ProtoInclude(54, typeof(WeaponOverridesPacket))]
+    [ProtoInclude(55, typeof(UserTagPacket))]
     public class Packet
     {
         [ProtoMember(1)] internal long EntityId;
@@ -500,6 +505,34 @@ namespace CoreSystems
             GroupName = string.Empty;
             Setting = string.Empty;
             Value = 0;
+        }
+    }
+
+    [ProtoContract]
+    public class WeaponOverridesPacket : Packet
+    {
+        [ProtoMember(1)] internal WeaponOverrideSetting Setting;
+        [ProtoMember(2)] internal int Value;
+
+        public override void CleanUp()
+        {
+            base.CleanUp();
+            Setting = default(WeaponOverrideSetting);
+            Value = 0;
+        }
+    }
+
+    [ProtoContract]
+    public class UserTagPacket : Packet
+    {
+        [ProtoMember(1)] internal string Tag;
+        [ProtoMember(2)] internal bool Enabled;
+
+        public override void CleanUp()
+        {
+            base.CleanUp();
+            Tag = null;
+            Enabled = false;
         }
     }
 
