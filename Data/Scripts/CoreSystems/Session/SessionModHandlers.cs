@@ -265,6 +265,10 @@ namespace CoreSystems
             {
                 CoreSystemsArmorDefs.Add(armorDef);
                 var values = new ResistanceValues();
+                values.MinDamage = armorDef.MinDamage;
+                values.IsSacrificialArmor = armorDef.IsSacrificialArmor;
+                values.MinDamageSacrificial = armorDef.MinDamageSacrificial;
+                values.SacrificialIntegrityThreshold = armorDef.SacrificialIntegrityThreshold;
                 var resistanceEnabled = !((armorDef.KineticResistance == 0 && armorDef.EnergeticResistance == 0) || (armorDef.KineticResistance == 1 && armorDef.EnergeticResistance == 1));
 
                 if (resistanceEnabled)
@@ -274,13 +278,22 @@ namespace CoreSystems
 
                     ArmorCoreActive = true;
                 }
+                else if (armorDef.MinDamage > 0 || armorDef.IsSacrificialArmor)
+                {
+                    // Damage Gate/sacrificial blocks with no resistance. Default resistances to 1 so the
+                    // resistance divide in DamageGrid avoids divide-by-zero.
+                    values.EnergeticResistance = 1;
+                    values.KineticResistance = 1;
+
+                    ArmorCoreActive = true;
+                }
 
                 foreach (var subtype in armorDef.SubtypeIds)
                 {
                     var type = MyStringHash.GetOrCompute(subtype);
 
                     int prevPrio;
-                    if (ArmorCorePriorityMap.TryGetValue(type, out prevPrio));
+                    if (!ArmorCorePriorityMap.TryGetValue(type, out prevPrio))
                         prevPrio = int.MinValue;
 
                     if (prevPrio >= armorDef.DefinitionPriority)
@@ -306,7 +319,7 @@ namespace CoreSystems
                         CustomHeavyArmorSubtypes.Remove(type);
                     }
                     ArmorCorePriorityMap[type] = armorDef.DefinitionPriority;
-                    if (resistanceEnabled) ArmorCoreBlockMap[type] = values;
+                    if (resistanceEnabled || armorDef.MinDamage > 0 || armorDef.IsSacrificialArmor) ArmorCoreBlockMap[type] = values;
                 }
             }
         }
