@@ -663,6 +663,9 @@ namespace CoreSystems
                         var cubeBlockDef = (MyCubeBlockDefinition)block.BlockDefinition;
                         float cachedIntegrity;
                         var blockHp = (double)(!IsClient ? block.Integrity - block.AccumulatedDamage : (_slimHealthClient.TryGetValue(block, out cachedIntegrity) ? cachedIntegrity : block.Integrity));
+                        var rawHp = blockHp; // current effective HP before the damage-scaling mutation below. Used for the sacrificial integrity ratio.
+                        ResistanceValues acv = default(ResistanceValues);
+                        var haveAcv = ArmorCoreActive && ArmorCoreBlockMap.TryGetValue(block.BlockDefinition.Id.SubtypeId, out acv);
                         var blockDmgModifier = cubeBlockDef.GeneralDamageMultiplier;
                         double damageScale = hits;
                         double directDamageScale = Settings.Enforcement.DirectDamageModifer * hitEnt.DamageMulti;
@@ -770,16 +773,11 @@ namespace CoreSystems
                                 }
                             }
 
-                            if (ArmorCoreActive)
+                            if (haveAcv)
                             {
-                                var subtype = block.BlockDefinition.Id.SubtypeId;
-                                if (ArmorCoreBlockMap.ContainsKey(subtype))
-                                {
-                                    var resistances = ArmorCoreBlockMap[subtype];
-                                    directDamageScale /= t.AmmoDef.Const.EnergyBaseDmg ? resistances.EnergeticResistance : resistances.KineticResistance;
-                                    areaDamageScale /= t.AmmoDef.Const.EnergyAreaDmg ? resistances.EnergeticResistance : resistances.KineticResistance;
-                                    detDamageScale /= t.AmmoDef.Const.EnergyDetDmg ? resistances.EnergeticResistance : resistances.KineticResistance;
-                                }
+                                directDamageScale /= t.AmmoDef.Const.EnergyBaseDmg ? acv.EnergeticResistance : acv.KineticResistance;
+                                areaDamageScale /= t.AmmoDef.Const.EnergyAreaDmg ? acv.EnergeticResistance : acv.KineticResistance;
+                                detDamageScale /= t.AmmoDef.Const.EnergyDetDmg ? acv.EnergeticResistance : acv.KineticResistance;
                             }
 
                             if (fallOff)
@@ -798,9 +796,34 @@ namespace CoreSystems
 
 
                         var aoeScaledDmg = (float)((aoeDamageFall * (detActive ? detDamageScale : areaDamageScale)) * damageScale * gridSizeBuff);
+
+                        //MinDamage gate rejects primary hits that do not exceed the threshold. The block takes no damage, but the projectile is still charged
+                        //the damage pool it would have spent on this hit.
+                        if (primaryDamage && haveAcv && acv.MinDamage > 0 && scaledDamage <= acv.MinDamage)
+                        {
+                            var scale = baseScale == 0d ? 0.0000001 : baseScale;
+                            basePool -= (float)(scaledDamage / scale); // convert dealt damage back to pool units, matching the kill branch
+                            if (basePool < 0)
+                                basePool = 0;
+                            t.BaseDamagePool = basePool;
+                            continue;
+                        }
+
                         bool deadBlock = false;
+                        //A primary hit clearing both MinDamage and MinDamageSacrificial destroys this block and ends the projectile,
+                        //but only while the block's integrity ratio is at or above SacrificialIntegrityThreshold
+                        if (primaryDamage && haveAcv && acv.IsSacrificialArmor && scaledDamage > acv.MinDamage && scaledDamage > acv.MinDamageSacrificial
+                            && (acv.SacrificialIntegrityThreshold <= 0 || (block.MaxIntegrity > 0 && rawHp / block.MaxIntegrity >= acv.SacrificialIntegrityThreshold)))
+                        {
+                            t.DamageDonePri += (long)scaledDamage;
+                            deadBlock = true;
+                            scaledDamage = (float)blockHp; // force enough damage to destroy the block even if the hit was below its HP
+                            basePool = 0;
+                            t.BaseDamagePool = basePool;
+                            detRequested = hasDet;
+                        }
                         //Check for end of primary life
-                        if (primaryDamage && scaledDamage < blockHp)
+                        else if (primaryDamage && scaledDamage < blockHp)
                         {
                             t.DamageDonePri += (long)scaledDamage;
                             basePool -= (float)(scaledDamage / (baseScale == 0d ? 0.0000001 : baseScale));

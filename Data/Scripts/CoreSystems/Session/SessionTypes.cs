@@ -1059,6 +1059,10 @@ namespace CoreSystems
         {
             internal float EnergeticResistance;
             internal float KineticResistance;
+            internal int MinDamage;
+            internal bool IsSacrificialArmor;
+            internal int MinDamageSacrificial;
+            internal float SacrificialIntegrityThreshold;
         }
 
         internal struct CleanSound
