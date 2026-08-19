@@ -1426,7 +1426,7 @@ namespace CoreSystems.Support
                             var lowFiVoxels = distSqr > oneHalfKmSqr && (ai.PlanetSurfaceInRange || ai.ClosestVoxelSqr <= oneHalfKmSqr);
                             var filter = lowFiVoxels ? CollisionLayers.DefaultCollisionLayer : CollisionLayers.VoxelLod1CollisionLayer;
 
-                            IHitInfo iHitInfo;
+                            IHitInfo iHitInfo = null;
                             MyCubeGrid rayGrid = null;
                             if (ai.AiType == AiTypes.Grid && physics.CastRay(testPos, targTestPos, out iHitInfo, CollisionLayers.NoVoxelCollisionLayer))
                             {
@@ -1434,7 +1434,7 @@ namespace CoreSystems.Support
                                 if (rayGrid != null && rayGrid.IsSameConstructAs(ai.GridEntity))
                                     continue;
                             }
-                            if (rayGrid != null && block.CubeGrid == rayGrid)
+                            if ((rayGrid != null && block.CubeGrid == rayGrid) || (block is MyCockpit && iHitInfo?.HitEntity == null))
                             {
                                 acquire = true;
                             }
