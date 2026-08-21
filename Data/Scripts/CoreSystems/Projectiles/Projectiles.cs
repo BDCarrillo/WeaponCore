@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using CoreSystems.Support;
 using Sandbox.Game.Entities;
@@ -303,7 +303,8 @@ namespace CoreSystems.Projectiles
                                 PrevVelocity0 = p.PrevVelocity0,
                                 PrevVelocity1 = p.PrevVelocity1,
                                 RandOffsetDir = info.Storage.RandOffsetDir,
-                                OffsetTarget = p.OffsetTarget
+                                OffsetTarget = p.OffsetTarget,
+                                AngleVariance = (float)(info.Storage.ApproachInfo?.AngleVariance ?? 0)
                             });
                         }
 
