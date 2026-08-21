@@ -697,13 +697,24 @@ namespace CoreSystems
             // Set independent of interpolation:
             p.Info.Storage.RandOffsetDir = frame.RandOffsetDir;
             p.OffsetTarget = frame.OffsetTarget;
+            if (p.Info.Storage.ApproachInfo != null)
+            {
+                p.Info.Storage.ApproachInfo.AngleVariance = frame.AngleVariance;
+            }
 
             var position = frame.WorldPosition;
             var velocity = (Vector3D)frame.Velocity;
             var lastPosition = position - velocity * StepConst;
             var prevVelocity0 = (Vector3D)frame.PrevVelocity0;
             var prevVelocity1 = (Vector3D)frame.PrevVelocity1;
-            var maxSpeed = p.MaxSpeed;
+
+            var maxSpeed = Math.Max(
+                p.MaxSpeed, 
+                Math.Max(
+                    velocity.Length(),
+                    Math.Max(prevVelocity0.Length(), prevVelocity1.Length())
+                )
+            );
             
             const double imperceptibleFactor = 0.2;
             const double hardSnapFactor = 5.0;

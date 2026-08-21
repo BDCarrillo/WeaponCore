@@ -468,6 +468,7 @@ namespace CoreSystems
         [ProtoMember(5)] public Vector3 PrevVelocity1;
         [ProtoMember(6)] public Vector3 RandOffsetDir;
         [ProtoMember(7)] public Vector3D OffsetTarget;
+        [ProtoMember(8)] public float AngleVariance;
     }
 
     internal struct AdvProjectilePositionSyncEntry

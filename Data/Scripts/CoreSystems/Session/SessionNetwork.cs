@@ -563,6 +563,7 @@ namespace CoreSystems
                             NetId = pro.Info.AdvSyncId,
                             RandOffsetDir = newFrame.RandOffsetDir,
                             OffsetTarget = newFrame.OffsetTarget,
+                            AngleVariance = newFrame.AngleVariance,
                             
                             // Interpolate between these two states using the smoothed OWL.
                             WorldPosition = Vector3D.Lerp(newFrame.WorldPosition, oldFrame.WorldPosition, t),
