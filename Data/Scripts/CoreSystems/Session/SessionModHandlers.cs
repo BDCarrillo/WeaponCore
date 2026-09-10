@@ -34,7 +34,7 @@ namespace CoreSystems
                         var subTypes = new HashSet<string>();
                         AssemblePartDefinitions(legacyArray, subTypes);
 
-                        var group = MyStringHash.GetOrCompute("Charging");
+                        var group = MyStringHash.GetOrCompute("Defense"); //Charging");
 
                         foreach (var def in AllDefinitions)
                         {
@@ -80,7 +80,7 @@ namespace CoreSystems
             if (baseDefArray.TagAssigmnents != null)
                 AssembleTagAssignments(baseDefArray.TagAssigmnents);
 
-            var group = MyStringHash.GetOrCompute("Charging");
+            var group = MyStringHash.GetOrCompute("Defense"); //Charging");
             foreach (var def in AllDefinitions)
             {
                 if (subTypes.Contains(def.Id.SubtypeName))

@@ -15,10 +15,17 @@ namespace CoreSystems.Support
     {
         private void PowerInit()
         {
-            Cube.ResourceSink.SetRequiredInputFuncByType(GId, () => FunctionalBlock.Enabled ? SinkPower : 0);
-            Cube.ResourceSink.SetMaxRequiredInputByType(GId, 0);
-
+            Cube.ResourceSink.SetRequiredInputFuncByType(GId, GetRequiredInput);
+            Cube.ResourceSink.SetMaxRequiredInputByType(GId, SinkPower);
             Cube.ResourceSink.Update();
+        }
+
+        private float GetRequiredInput()
+        {
+            if (!FunctionalBlock.Enabled || !Cube.IsFunctional)
+                return 0;
+
+            return SinkPower;
         }
 
         private void StorageSetup()
