@@ -1430,6 +1430,7 @@ namespace CoreSystems.Api
                 comp.ModOverride = true;
                 if (comp.Ai != null)
                     comp.Ai.ModOverride = true;
+                comp.Cube.ResourceSink.Update();
             }
         }
 
@@ -1441,6 +1442,7 @@ namespace CoreSystems.Api
                 comp.ModOverride = false;
                 if (comp.Ai != null)
                     comp.Ai.ModOverride = false;
+                comp.Cube.ResourceSink.Update();
             }
         }
 
