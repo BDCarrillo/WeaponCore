@@ -155,14 +155,63 @@ namespace CoreSystems.Control
             if (comp == null || comp.Platform.State != CorePlatform.PlatformState.Ready)
                 return;
             
-            var numValue = (int)comp.Data.Repo.Values.Set.Overrides.Control;
-            int value;
-            if (Session.I.Settings.Enforcement.ProhibitHUDPainter)
-                value = numValue == 1 ? 0 : 1;
-            else
-                value = numValue + 1 <= 2 ? numValue + 1 : 0;
+            var numValue = comp.Data.Repo.Values.Set.Overrides.Control;
 
-            Weapon.WeaponComponent.RequestSetValue(comp, WeaponOverrideSetting.ControlModes, value, Session.I.PlayerId);
+            var mask = comp.PrimaryWeapon.System.WConst.ValidControlModes;
+            if (Session.I.Settings.Enforcement.ProhibitHUDPainter)
+            {
+                mask &= ~WeaponDefinition.TargetingDef.ControlModes.Painter;
+
+                if (mask == WeaponDefinition.TargetingDef.ControlModes.Invalid)
+                    mask = WeaponDefinition.TargetingDef.ControlModes.Automatic;
+            }
+            
+
+            ProtoWeaponOverrides.ControlModes newVal;
+            switch (numValue)
+            {
+                case ProtoWeaponOverrides.ControlModes.Auto:
+                    if ((mask & WeaponDefinition.TargetingDef.ControlModes.Manual) != 0)
+                    {
+                        newVal = ProtoWeaponOverrides.ControlModes.Manual;
+                        break;
+                    }
+                    if ((mask & WeaponDefinition.TargetingDef.ControlModes.Painter) != 0)
+                    {
+                        newVal = ProtoWeaponOverrides.ControlModes.Painter;
+                        break;
+                    }
+                    newVal = ProtoWeaponOverrides.ControlModes.Auto;
+                    break;
+                case ProtoWeaponOverrides.ControlModes.Manual:
+                    if ((mask & WeaponDefinition.TargetingDef.ControlModes.Painter) != 0)
+                    {
+                        newVal = ProtoWeaponOverrides.ControlModes.Painter;
+                        break;
+                    }
+                    if ((mask & WeaponDefinition.TargetingDef.ControlModes.Automatic) != 0)
+                    {
+                        newVal = ProtoWeaponOverrides.ControlModes.Auto;
+                        break;
+                    }
+                    newVal = ProtoWeaponOverrides.ControlModes.Manual;
+                    break;
+                default: // Painter
+                    if ((mask & WeaponDefinition.TargetingDef.ControlModes.Automatic) != 0)
+                    {
+                        newVal = ProtoWeaponOverrides.ControlModes.Auto;
+                        break;
+                    }
+                    if ((mask & WeaponDefinition.TargetingDef.ControlModes.Manual) != 0)
+                    {
+                        newVal = ProtoWeaponOverrides.ControlModes.Manual;
+                        break;
+                    }
+                    newVal = ProtoWeaponOverrides.ControlModes.Painter;
+                    break;
+            }
+
+            Weapon.WeaponComponent.RequestSetValue(comp, WeaponOverrideSetting.ControlModes, (int)newVal, Session.I.PlayerId);
         }
 
         internal static void TerminalActionMovementMode(IMyTerminalBlock blk)

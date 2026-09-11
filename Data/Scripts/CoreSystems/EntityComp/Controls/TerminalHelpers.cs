@@ -29,7 +29,7 @@ namespace CoreSystems.Control
 
         internal static void AddTurretOrTrackingControls<T>(Session session) where T : IMyTerminalBlock
         {
-            AddComboboxNoAction<T>(session, "ControlModes", Localization.GetText("TerminalControlModesTitle"), Localization.GetText("TerminalControlModesTooltip"), BlockUi.GetControlMode, BlockUi.RequestControlMode, BlockUi.ListControlModes, TurretOrGuidedAmmo);
+            AddComboboxNoAction<T>(session, "ControlModes", Localization.GetText("TerminalControlModesTitle"), Localization.GetText("TerminalControlModesTooltip"), BlockUi.GetControlMode, BlockUi.RequestControlMode, BlockUi.ListControlModes, TurretOrGuidedAmmo, ControlSelectionEnabled);
             AddComboboxNoAction<T>(session, "ObjectiveMode", Localization.GetText("TerminalObjectiveTitle"), Localization.GetText("TerminalObjectiveTooltip"), BlockUi.GetObjectiveMode, BlockUi.RequestObjectiveMode, BlockUi.ListObjectiveModes, TrackGrids);
             AddComboboxNoAction<T>(session, "TrackingMode", Localization.GetText("TerminalTrackingModeTitle"), Localization.GetText("TerminalTrackingModeTooltip"), BlockUi.GetMovementMode, BlockUi.RequestMovementMode, BlockUi.ListMovementModes, TrackGrids);
             AddComboboxNoAction<T>(session, "PickAmmo", Localization.GetText("TerminalPickAmmoTitle"), Localization.GetText("TerminalPickAmmoTooltip"), BlockUi.GetAmmos, BlockUi.RequestSetAmmo, BlockUi.ListAmmos, AmmoSelection);
@@ -254,6 +254,23 @@ namespace CoreSystems.Control
                 return false;
 
             return comp.ConsumableSelectionPartIds.Count > 0;
+        }
+        internal static bool ControlSelectionEnabled(IMyTerminalBlock block)
+        {
+            var comp = block?.Components?.Get<CoreComponent>() as Weapon.WeaponComponent;
+
+            var valid = comp != null && comp.Platform.State == CorePlatform.PlatformState.Ready && comp.Type == CoreComponent.CompType.Weapon && comp.Data?.Repo != null && !comp.IsBomb;
+            if (!valid || Session.I.PlayerId != comp.Data.Repo.Values.State.PlayerId && !comp.TakeOwnerShip())
+                return false;
+
+            // https://en.wikipedia.org/wiki/SWAR
+            var x = (ulong)comp.PrimaryWeapon.System.WConst.ValidControlModes & (Session.I.Settings.Enforcement.ProhibitHUDPainter ? ~(ulong)WeaponDefinition.TargetingDef.ControlModes.Painter : ~0uL);
+            var x2 = x - ((x >> 1) & 0x5555555555555555);
+            var x4 = (x2 & 0x3333333333333333) + ((x2 >> 2) & 0x3333333333333333);
+            var x8 = (x4 + (x4 >> 4)) & 0x0f0f0f0f0f0f0f0f;
+            var pcount = (x8 * 0x0101010101010101) >> 56;
+
+            return pcount > 1;
         }
 
         internal static bool EnableForceReload(IMyTerminalBlock block)
@@ -1097,8 +1114,13 @@ namespace CoreSystems.Control
             return c;
         }
 
-        internal static IMyTerminalControlCombobox AddComboboxNoAction<T>(Session session, string name, string title, string tooltip, Func<IMyTerminalBlock, long> getter, Action<IMyTerminalBlock, long> setter, Action<List<MyTerminalControlComboBoxItem>> fillAction, Func<IMyTerminalBlock,  bool> visibleGetter = null) where T : IMyTerminalBlock {
+        internal static IMyTerminalControlCombobox AddComboboxNoAction<T>(Session session, string name, string title, string tooltip, 
+            Func<IMyTerminalBlock, long> getter, Action<IMyTerminalBlock, long> setter, Action<List<MyTerminalControlComboBoxItem>> fillAction, 
+            Func<IMyTerminalBlock,  bool> visibleGetter = null, Func<IMyTerminalBlock, bool> enabledGetter = null) where T : IMyTerminalBlock {
             var c = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlCombobox, T>("WC_" + name);
+
+            if (enabledGetter == null)
+                enabledGetter = IsReady;
 
             c.Title = MyStringId.GetOrCompute(title);
             c.Tooltip = MyStringId.GetOrCompute(tooltip);
@@ -1107,7 +1129,7 @@ namespace CoreSystems.Control
             c.Setter = setter;
 
             c.Visible = visibleGetter;
-            c.Enabled = IsReady;
+            c.Enabled = enabledGetter;
 
             MyAPIGateway.TerminalControls.AddControl<T>(c);
             session.CustomControls.Add(c);
@@ -1115,9 +1137,14 @@ namespace CoreSystems.Control
             return c;
         }
 
-        internal static IMyTerminalControlCombobox CtcAddComboboxNoAction<T>(Session session, string name, string title, string tooltip, Func<IMyTerminalBlock, long> getter, Action<IMyTerminalBlock, long> setter, Action<List<MyTerminalControlComboBoxItem>> fillAction, Func<IMyTerminalBlock, bool> visibleGetter = null) where T : IMyTerminalBlock
+        internal static IMyTerminalControlCombobox CtcAddComboboxNoAction<T>(Session session, string name, string title, string tooltip, 
+            Func<IMyTerminalBlock, long> getter, Action<IMyTerminalBlock, long> setter, Action<List<MyTerminalControlComboBoxItem>> fillAction, 
+            Func<IMyTerminalBlock, bool> visibleGetter = null, Func<IMyTerminalBlock, bool> enabledGetter = null) where T : IMyTerminalBlock
         {
             var c = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlCombobox, T>("WC_" + name);
+
+            if (enabledGetter == null)
+                enabledGetter = CtcIsReady;
 
             c.Title = MyStringId.GetOrCompute(title);
             c.Tooltip = MyStringId.GetOrCompute(tooltip);
@@ -1126,7 +1153,7 @@ namespace CoreSystems.Control
             c.Setter = setter;
 
             c.Visible = visibleGetter;
-            c.Enabled = CtcIsReady;
+            c.Enabled = enabledGetter;
 
             MyAPIGateway.TerminalControls.AddControl<T>(c);
             session.CustomControls.Add(c);

@@ -1142,18 +1142,11 @@ namespace CoreSystems
         {
             foreach (var sub in ControlList)
             {
-                if (sub.Key != 2 || !Session.I.Settings.Enforcement.ProhibitHUDPainter)
-                    controlList.Add(sub);
+                controlList.Add(sub);
             }
-            
         }
 
-        private static readonly List<MyTerminalControlComboBoxItem> ControlList = new List<MyTerminalControlComboBoxItem>
-        {
-            new MyTerminalControlComboBoxItem { Key = 0, Value = MyStringId.GetOrCompute(Localization.GetText("ControlAuto")) },
-            new MyTerminalControlComboBoxItem { Key = 1, Value = MyStringId.GetOrCompute(Localization.GetText("ControlManual")) },
-            new MyTerminalControlComboBoxItem { Key = 2, Value = MyStringId.GetOrCompute(Localization.GetText("ControlPainter")) },
-        };
+        public static readonly List<MyTerminalControlComboBoxItem> ControlList = new List<MyTerminalControlComboBoxItem>();
 
         internal static void ListDecoySubSystems(List<MyTerminalControlComboBoxItem> subSystemList)
         {

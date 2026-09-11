@@ -146,6 +146,65 @@ namespace CoreSystems.Platform
                     // else uhh idk fail silently
                 }
 
+                var currentMode = Repo.Values.Set.Overrides.Control;
+                
+                var mask = Comp.PrimaryWeapon.System.WConst.ValidControlModes;
+                if (Session.I.Settings.Enforcement.ProhibitHUDPainter)
+                {
+                    mask &= ~WeaponDefinition.TargetingDef.ControlModes.Painter;
+
+                    if (mask == WeaponDefinition.TargetingDef.ControlModes.Invalid)
+                        mask = WeaponDefinition.TargetingDef.ControlModes.Automatic;
+                }
+
+                if ((((int)mask) & (1 << (int)currentMode)) == 0)
+                {
+                    ProtoWeaponOverrides.ControlModes newMode;
+                    switch (currentMode)
+                    {
+                        case ProtoWeaponOverrides.ControlModes.Auto:
+                            if ((mask & WeaponDefinition.TargetingDef.ControlModes.Manual) != 0)
+                            {
+                                newMode = ProtoWeaponOverrides.ControlModes.Manual;
+                                break;
+                            }
+                            if ((mask & WeaponDefinition.TargetingDef.ControlModes.Painter) != 0)
+                            {
+                                newMode = ProtoWeaponOverrides.ControlModes.Painter;
+                                break;
+                            }
+                            newMode = ProtoWeaponOverrides.ControlModes.Auto;
+                            break;
+                        case ProtoWeaponOverrides.ControlModes.Manual:
+                            if ((mask & WeaponDefinition.TargetingDef.ControlModes.Painter) != 0)
+                            {
+                                newMode = ProtoWeaponOverrides.ControlModes.Painter;
+                                break;
+                            }
+                            if ((mask & WeaponDefinition.TargetingDef.ControlModes.Automatic) != 0)
+                            {
+                                newMode = ProtoWeaponOverrides.ControlModes.Auto;
+                                break;
+                            }
+                            newMode = ProtoWeaponOverrides.ControlModes.Manual;
+                            break;
+                        default: // Painter
+                            if ((mask & WeaponDefinition.TargetingDef.ControlModes.Automatic) != 0)
+                            {
+                                newMode = ProtoWeaponOverrides.ControlModes.Auto;
+                                break;
+                            }
+                            if ((mask & WeaponDefinition.TargetingDef.ControlModes.Manual) != 0)
+                            {
+                                newMode = ProtoWeaponOverrides.ControlModes.Manual;
+                                break;
+                            }
+                            newMode = ProtoWeaponOverrides.ControlModes.Painter;
+                            break;
+                    }
+                    Repo.Values.Set.Overrides.Control = newMode;
+                }
+
                 ProtoRepoBase = Repo;
                 if (Comp.TypeSpecific == CoreComponent.CompTypeSpecific.Rifle)
                     Comp.AmmoStorage(true);
