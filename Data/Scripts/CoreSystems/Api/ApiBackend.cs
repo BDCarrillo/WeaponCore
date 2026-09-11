@@ -87,6 +87,7 @@ namespace CoreSystems.Api
                 ["GetWeaponScope"] = new Func<Sandbox.ModAPI.IMyTerminalBlock, int, MyTuple<Vector3D, Vector3D>>(GetWeaponScopeLegacy),
                 ["GetCurrentPowerBase"] = new Func<MyEntity, float>(GetCurrentPower),
                 ["GetCurrentPower"] = new Func<Sandbox.ModAPI.IMyTerminalBlock, float>(GetCurrentPowerLegacy),
+                ["EnableRequiredPowerBase"] = new Action<MyEntity>(ModOverrideOff),
                 ["DisableRequiredPowerBase"] = new Action<MyEntity>(ModOverride),
                 ["DisableRequiredPower"] = new Action<Sandbox.ModAPI.IMyTerminalBlock>(ModOverrideLegacy),
                 ["HasCoreWeaponBase"] = new Func<MyEntity, bool>(HasCoreWeapon),
@@ -1429,6 +1430,17 @@ namespace CoreSystems.Api
                 comp.ModOverride = true;
                 if (comp.Ai != null)
                     comp.Ai.ModOverride = true;
+            }
+        }
+
+        private static void ModOverrideOff(MyEntity weaponBlock)
+        {
+            var comp = weaponBlock.Components.Get<CoreComponent>() as Weapon.WeaponComponent;
+            if (comp?.Platform != null && comp.Platform.State == Ready)
+            {
+                comp.ModOverride = false;
+                if (comp.Ai != null)
+                    comp.Ai.ModOverride = false;
             }
         }
 
