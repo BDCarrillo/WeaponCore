@@ -425,8 +425,7 @@ namespace CoreSystems.Api
             var block = arg1 as Sandbox.ModAPI.Ingame.IMyTerminalBlock;
             var target = GetWeaponTarget((MyEntity) block, arg2);
 
-
-            var result = GetDetailedEntityInfo(target, (MyEntity)arg1);
+            var result = GetDetailedEntityInfo(target, (MyEntity)arg1, true);
 
             return result;
         }
@@ -445,10 +444,46 @@ namespace CoreSystems.Api
             var shooter = MyEntities.GetEntityById(arg1);
             if (shooter == null)
                 return new MyDetectedEntityInfo();
-            return GetEntityInfo(GetAiFocus(shooter, arg2), shooter);
+            return GetEntityInfo(GetAiFocus(shooter, arg2), shooter, true);
         }
 
-        private MyDetectedEntityInfo GetDetailedEntityInfo(MyTuple<bool, bool, bool, MyEntity> target, MyEntity shooter)
+        private static void ApplyConcealment(MyEntity entity, MyEntity topEntity, ref long entityId, ref string name, ref BoundingBoxD boundingBox)
+        {
+            var concealEntity = topEntity;
+            if (concealEntity == entity) 
+            {
+                var block = entity as Sandbox.ModAPI.IMyTerminalBlock;
+
+                var cubeGrid = block?.CubeGrid;
+                if (cubeGrid == null) 
+                {
+                    return;
+                }
+
+                concealEntity = MyEntities.GetEntityById(cubeGrid.EntityId)?.GetTopMostParent();
+            }
+
+            if (concealEntity == null || concealEntity == entity) 
+            {
+                return;
+            }
+
+            var concealGrid = concealEntity as MyCubeGrid;
+            var center = entity.PositionComp.WorldAABB.Center;
+            entityId = concealEntity.EntityId;
+            
+            name = concealGrid != null 
+                ? concealGrid.DisplayName 
+                : concealEntity.GetFriendlyName();
+            
+            
+            boundingBox = new BoundingBoxD(
+                center - new Vector3(0.5f),
+                center + new Vector3(0.5f)
+            );
+        }
+
+        private MyDetectedEntityInfo GetDetailedEntityInfo(MyTuple<bool, bool, bool, MyEntity> target, MyEntity shooter, bool conceal = false)
         {
             var e = target.Item4;
             var shooterGrid = shooter.GetTopMostParent();
@@ -494,10 +529,18 @@ namespace CoreSystems.Api
             else if (player != null) name = player.GetFriendlyName();
             else name = e.GetFriendlyName();
 
-            return new MyDetectedEntityInfo(entityId, name, type, e.PositionComp.WorldAABB.Center, e.PositionComp.WorldMatrixRef, topTarget.Physics.LinearVelocity, relation, e.PositionComp.WorldAABB, Session.I.Tick);
+            var position = e.PositionComp.WorldAABB.Center;
+            var boundingBox = e.PositionComp.WorldAABB;
+
+            if (conceal) 
+            {
+                ApplyConcealment(e, topTarget, ref entityId, ref name, ref boundingBox);
+            }
+
+            return new MyDetectedEntityInfo(entityId, name, type, position, e.PositionComp.WorldMatrixRef, topTarget.Physics.LinearVelocity, relation, boundingBox, Session.I.Tick);
         }
 
-        private MyDetectedEntityInfo GetEntityInfo(MyEntity target, MyEntity shooter)
+        private MyDetectedEntityInfo GetEntityInfo(MyEntity target, MyEntity shooter, bool conceal = false)
         {
             var e = target;
             if (e?.Physics == null)
@@ -536,7 +579,14 @@ namespace CoreSystems.Api
                 type = MyDetectedEntityType.Unknown;
                 name = e.GetFriendlyName();
             }
-            return new MyDetectedEntityInfo(e.EntityId, name, type, e.PositionComp.WorldAABB.Center, e.PositionComp.WorldMatrixRef, e.Physics.LinearVelocity, relation, e.PositionComp.WorldAABB, Session.I.Tick);
+            var entityId = e.EntityId;
+            var boundingBox = e.PositionComp.WorldAABB;
+            if (conceal) 
+            {
+                ApplyConcealment(e, e.GetTopMostParent(), ref entityId, ref name, ref boundingBox);
+            }
+
+            return new MyDetectedEntityInfo(entityId, name, type, e.PositionComp.WorldAABB.Center, e.PositionComp.WorldMatrixRef, e.Physics.LinearVelocity, relation, boundingBox, Session.I.Tick);
         }
 
         private readonly List<MyTuple<MyEntity, float>> _tmpTargetList = new List<MyTuple<MyEntity, float>>();
