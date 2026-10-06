@@ -387,7 +387,7 @@ namespace CoreSystems
             if (entity != null && EntityAIs.TryGetValue(entity, out ai)) {
 
                 long playerId;
-                if (SteamToPlayer.TryGetValue(packet.SenderId, out playerId)) {
+                if (SteamToPlayer.TryGetValue(targetPacket.PlayerSteamId ?? 0 /* should never happen */, out playerId)) {
 
                     FakeTargets dummyTargets;
                     if (PlayerDummyTargets.TryGetValue(playerId, out dummyTargets)) {
@@ -418,7 +418,7 @@ namespace CoreSystems
             if (entity != null && EntityAIs.TryGetValue(entity, out ai))
             {
                 long playerId;
-                if (SteamToPlayer.TryGetValue(packet.SenderId, out playerId))
+                if (SteamToPlayer.TryGetValue(targetPacket.PlayerSteamId ?? 0 /* should never happen */, out playerId))
                 {
                     FakeTargets dummyTargets;
                     if (PlayerDummyTargets.TryGetValue(playerId, out dummyTargets))
