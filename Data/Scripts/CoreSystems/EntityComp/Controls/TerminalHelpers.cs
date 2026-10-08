@@ -759,7 +759,7 @@ namespace CoreSystems.Control
             MyAPIGateway.TerminalControls.AddControl<T>(c);
             session.CustomControls.Add(c);
 
-            CreateCustomActions<T>.CreateSliderActionSet(session, c, title, 0, 1, .1f, visibleGetter, group);
+            //CreateCustomActions<T>.CreateSliderActionSet(session, c, title, 0, 1, .1f, visibleGetter, group);
             return c;
         }
 
