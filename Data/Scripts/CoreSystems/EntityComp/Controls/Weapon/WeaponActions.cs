@@ -636,7 +636,7 @@ namespace CoreSystems.Control
         {
             long valueLong;
             long.TryParse(blk.CustomData, out valueLong);
-            var value = valueLong + 1 <= 7 ? valueLong + 1 : 1;
+            var value = valueLong - 1 >= 1 ? valueLong - 1 : 7;
             blk.CustomData = value.ToString();
             blk.RefreshCustomInfo();
         }
