@@ -1187,7 +1187,7 @@ namespace CoreSystems
                     ShieldMod = true;
                 else if (mod.PublishedFileId == 2189703321 || mod.PublishedFileId == 2496225055 || mod.PublishedFileId == 2726343161 || mod.PublishedFileId == 2734980390)
                     DebugVersion = true;
-                else if (mod.PublishedFileId == 2200451495 || mod.PublishedFileId == 3283226082)
+                else if (mod.PublishedFileId == 2200451495 || mod.PublishedFileId == 3283226082 || mod.PublishedFileId == 3824869788)
                     WaterMod = true;
                 else if (mod.PublishedFileId == 3514216428 || mod.GetPath().Contains("AppData\\Roaming\\SpaceEngineers\\Mods\\NerdShieldsFramework"))
                     NerdShieldMod = true;
