@@ -231,7 +231,7 @@ if (Session.I.DebugMod)
                     CurrentAmmoVolume = Reload.CurrentMags * ActiveAmmoDef.AmmoDef.Const.MagVolume;
 
                     var magsRequested = (int)((System.FullAmmoVolume - CurrentAmmoVolume) / ActiveAmmoDef.AmmoDef.Const.MagVolume + .0001f);
-                    var magsGranted = magsRequested > spotsFree ? spotsFree : magsRequested;
+                    var magsGranted = magsRequested > spotsFree ? spotsFree : magsRequested == 0 && spotsFree > 0 ? spotsFree : magsRequested;                    
                     var requestedVolume = ActiveAmmoDef.AmmoDef.Const.MagVolume * magsGranted;
                     var spaceAvailable = freeVolume >= requestedVolume || MyUtils.IsEqual(freeVolume, requestedVolume);
                     var pullAmmo = magsGranted > 0 && CurrentAmmoVolume < System.LowAmmoVolume && spaceAvailable;
