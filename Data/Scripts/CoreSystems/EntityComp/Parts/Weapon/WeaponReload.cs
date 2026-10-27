@@ -1,5 +1,6 @@
 ﻿using System;
 using CoreSystems.Support;
+using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Utils;
 using WeaponCore.Data.Scripts.CoreSystems.Support;
@@ -36,7 +37,31 @@ namespace CoreSystems.Platform
                 Reload.CurrentMags = Comp.TypeSpecific != CompTypeSpecific.Phantom ? 0 : int.MaxValue;
             }
 
+            var prevAmmoCharge = ActiveAmmoDef != null ? ActiveAmmoDef.AmmoDef.Const.MustCharge : false;
             ActiveAmmoDef = System.AmmoTypes[Reload.AmmoTypeId];
+
+            if (Comp.IsBlock)
+            {
+
+                var useCharging = !prevAmmoCharge && ActiveAmmoDef.AmmoDef.Const.MustCharge;
+                var useDefense = prevAmmoCharge && !ActiveAmmoDef.AmmoDef.Const.MustCharge;
+
+                if (useCharging || useDefense)
+                {
+                    var sinkInfo = new MyResourceSinkInfo
+                    {
+                        ResourceTypeId = Comp.GId,
+                        MaxRequiredInput = Comp.SinkPower,
+                        RequiredInputFunc = Comp.GetRequiredInput,
+                    };
+                    Comp.Cube.ResourceSink.RemoveType(ref Comp.GId);
+                    Comp.Cube.ResourceSink.Init(useCharging ? MyStringHash.GetOrCompute("Charging") : MyStringHash.GetOrCompute("Defense"), sinkInfo, Comp.Cube);
+                    Comp.Cube.ResourceSink.Update();
+                    Comp.Cube.UpdateIsWorking();
+                    //Log.Line($"Switched sink to {(useCharging ? "Charging" : "Defense")}");
+                }
+            }
+
             if (string.IsNullOrEmpty(AmmoName)) 
                 AmmoName = ActiveAmmoDef.AmmoDef.AmmoRound;
             PrepAmmoShuffle();
