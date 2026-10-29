@@ -501,7 +501,7 @@ namespace CoreSystems.Api
             if (shooterGrid != null && topTarget != null && Session.I.EntityToMasterAi.TryGetValue(shooterGrid, out ai) && ai.Construct.GetConstructTargetInfo(topTarget, out info)) {
                 relation = info.EntInfo.Relationship;
                 type = info.EntInfo.Type;
-                var maxDist = ai.MaxTargetingRange + shooterGrid.PositionComp.WorldAABB.Extents.Max();
+                var maxDist = ai.Construct.MaxLockRange + shooterGrid.PositionComp.WorldAABB.Extents.Max();
                 if (Vector3D.DistanceSquared(e.PositionComp.WorldMatrixRef.Translation, shooterGrid.PositionComp.WorldMatrixRef.Translation) > (maxDist * maxDist))
                 {
                     return new MyDetectedEntityInfo();
