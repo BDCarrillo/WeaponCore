@@ -1,5 +1,6 @@
 ﻿using System;
 using CoreSystems.Support;
+using Sandbox.Game.Entities;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Utils;
@@ -38,6 +39,7 @@ namespace CoreSystems.Platform
             }
 
             var prevAmmoCharge = ActiveAmmoDef != null ? ActiveAmmoDef.AmmoDef.Const.MustCharge : false;
+            var firstRun = ActiveAmmoDef == null;
             ActiveAmmoDef = System.AmmoTypes[Reload.AmmoTypeId];
 
             if (Comp.IsBlock)
@@ -57,8 +59,12 @@ namespace CoreSystems.Platform
                     Comp.Cube.ResourceSink.RemoveType(ref Comp.GId);
                     Comp.Cube.ResourceSink.Init(useCharging ? MyStringHash.GetOrCompute("Charging") : MyStringHash.GetOrCompute("Defense"), sinkInfo, Comp.Cube);
                     Comp.Cube.ResourceSink.Update();
-                    Comp.Cube.UpdateIsWorking();
-                    //Log.Line($"Switched sink to {(useCharging ? "Charging" : "Defense")}");
+                    
+                    if (firstRun)
+                        Session.I.FutureEvents.Schedule(DelayedUpdateSink, Comp.Cube, 2);
+                    else
+                        Comp.Cube.UpdateIsWorking();
+                    //Log.Line($"Switched {Comp.TerminalBlock.CustomName}sink to {(useCharging ? "Charging" : "Defense")} First run: {firstRun}");
                 }
             }
 
@@ -80,6 +86,16 @@ namespace CoreSystems.Platform
             UpdateRof();
             SetWeaponDps();
             UpdateWeaponRange();
+        }
+
+        private void DelayedUpdateSink(object obj)
+        {
+            var cube = obj as MyCubeBlock;
+            if (cube != null)
+            {
+                cube.ResourceSink.Update();
+                cube.UpdateIsWorking();
+            }
         }
 
         internal void ChangeActiveAmmoClient()
