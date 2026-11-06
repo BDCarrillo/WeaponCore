@@ -264,7 +264,7 @@ namespace CoreSystems.Control
             if (!valid || Session.I.PlayerId != comp.Data.Repo.Values.State.PlayerId && !comp.TakeOwnerShip())
                 return false;
 
-            return comp.ConsumableSelectionPartIds.Count > 0 && !comp.PrimaryWeapon.ActiveAmmoDef.AmmoDef.Const.Reloadable;
+            return comp.ConsumableSelectionPartIds.Count > 0 && comp.PrimaryWeapon.ActiveAmmoDef.AmmoDef.Const.Reloadable;
         }
 
         internal static bool ControlSelectionEnabled(IMyTerminalBlock block)
