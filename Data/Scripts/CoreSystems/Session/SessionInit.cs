@@ -350,7 +350,10 @@ namespace CoreSystems
                                 if (prevDef.Assignments.MountPoints[prevIndex].SubtypeId == subTypeId)
                                     break;
                             }
-                            var prevAttachmentId = weapon ? muzzlePartId : prevDef.HardPoint.PartName + $" {prevIndex}";
+
+                            var muzzlePartId2 = prevDef.Assignments.MountPoints[prevIndex].MuzzlePartId;
+
+                            var prevAttachmentId = weapon ? muzzlePartId2 : prevDef.HardPoint.PartName + $" {prevIndex}";
                             _subTypeMaps[subTypeId].Remove(prevAttachmentId);
 
                             var prevName = prevDef.ModPath.Split('\\');
