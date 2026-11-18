@@ -23,12 +23,7 @@ namespace CoreSystems.Support
         internal readonly Dictionary<MyEntity, string> VanillaSubparts = new Dictionary<MyEntity, string>();
         internal readonly Dictionary<MyEntity, string> NeedsWorld = new Dictionary<MyEntity, string>();
 
-        internal const string MissileVanillaBase = "MissileTurretBase1";
-        internal const string MissileVanillaBarrels = "MissileTurretBarrels";
-        internal const string GatVanillaBase = "GatlingTurretBase1";
-        internal const string GatVanillaBarrels = "GatlingTurretBase2";
         internal const string NoneStr = "None";
-
 
         private IMyModel _trackedModel;
         internal MyEntity Entity;
@@ -47,7 +42,7 @@ namespace CoreSystems.Support
 
         internal void CheckSubparts()
         {
-            if (_trackedModel == Entity?.Model)
+            if (_trackedModel == Entity?.Model || Entity?.Parent == null || (bool)Entity?.MarkedForClose)
                 return;
             _trackedModel = Entity?.Model;
             _subparts.Clear();
@@ -79,7 +74,7 @@ namespace CoreSystems.Support
                                 NameToEntity[name] = res;
                                 EntityToName[res] = name;
                                 var sorter = Entity as MyConveyorSorter;
-                                if (sorter == null && (name.Equals(MissileVanillaBase) || name.Equals(MissileVanillaBarrels) || name.Equals(GatVanillaBase) || name.Equals(GatVanillaBarrels)))
+                                if (sorter == null && Session.I.VanillaSubpartNames.Contains(name))
                                     VanillaSubparts[res] = name;
                             }
                         }

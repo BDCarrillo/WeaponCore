@@ -391,8 +391,8 @@ namespace CoreSystems.Platform
             AzimuthInitFwdDir = azimuthPart.PositionComp.LocalMatrixRef.Forward;
             
             FuckMyLife();
-            
-            AiOnlyWeapon = Comp.TypeSpecific != CoreComponent.CompTypeSpecific.VanillaTurret || (Comp.TypeSpecific == CoreComponent.CompTypeSpecific.VanillaTurret && (azimuthPartName != "MissileTurretBase1" && elevationPartName != "MissileTurretBarrels" && azimuthPartName != "InteriorTurretBase1" && elevationPartName != "InteriorTurretBase2" && azimuthPartName != "GatlingTurretBase1" && elevationPartName != "GatlingTurretBase2"));
+
+            AiOnlyWeapon = Comp.TypeSpecific != CoreComponent.CompTypeSpecific.VanillaTurret || (Comp.TypeSpecific == CoreComponent.CompTypeSpecific.VanillaTurret && !Session.I.VanillaSubpartNames.Contains(azimuthPartName) && !Session.I.VanillaSubpartNames.Contains(elevationPartName));
             if (comp.TypeSpecific == CoreComponent.CompTypeSpecific.SearchLight) AiOnlyWeapon = false; //FML there's got to be a way to roll this into the line above
             VanillaTracking = TurretAttached && !AiOnlyWeapon;
 

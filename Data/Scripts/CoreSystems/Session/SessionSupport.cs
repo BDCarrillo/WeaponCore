@@ -1724,12 +1724,12 @@ namespace CoreSystems
             VanillaCoreIds[smallLargeMissile2] = smallLargeMissile2Id;
 
             var smallAutoTurret = MyStringHash.GetOrCompute("AutoCannonTurret");
-            var smallAutoTurretId = new MyDefinitionId(typeof(MyObjectBuilder_LargeGatlingTurret), "AutoCannonTurret");
+            var smallAutoTurretId = new MyDefinitionId(typeof(MyObjectBuilder_LargeMissileTurret), "AutoCannonTurret");
             VanillaIds[smallAutoTurretId] = smallAutoTurret;
             VanillaCoreIds[smallAutoTurret] = smallAutoTurretId;
 
             var smallAutoTurret2 = MyStringHash.GetOrCompute("AutoCannonTurretType2");
-            var smallAutoTurretId2 = new MyDefinitionId(typeof(MyObjectBuilder_LargeGatlingTurret), "AutoCannonTurretType2");
+            var smallAutoTurretId2 = new MyDefinitionId(typeof(MyObjectBuilder_LargeMissileTurret), "AutoCannonTurretType2");
             VanillaIds[smallAutoTurretId2] = smallAutoTurret2;
             VanillaCoreIds[smallAutoTurret2] = smallAutoTurretId2;
 
@@ -1845,7 +1845,7 @@ namespace CoreSystems
             VanillaSubpartNames.Add("GatlingBarrel");
             VanillaSubpartNames.Add("GatlingTurretReskinBarrel");
             VanillaSubpartNames.Add("AutocannonTurret_Barrel");
-            VanillaSubpartNames.Add("AutocannonTUrret_Base1");
+            VanillaSubpartNames.Add("AutocannonTurret_Base1");
         }
 
         internal void UpdateEnforcement()
