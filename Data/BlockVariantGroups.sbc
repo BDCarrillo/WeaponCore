@@ -15,13 +15,20 @@
                 <Block Type="MyObjectBuilder_SmallGatlingGun" Subtype="" />
                 <Block Type="MyObjectBuilder_SmallGatlingGun" Subtype="SmallGatlingGunWarfare2" />
                 <Block Type="MyObjectBuilder_SmallGatlingGun" Subtype="SmallBlockAutocannon" />
-                <Block Type="MyObjectBuilder_ConveyorSorter" Subtype="SmallRailgun" />
+				<Block Type="MyObjectBuilder_SmallGatlingGun" Subtype="SmallBlockAutocannonType2" />
+				<Block Type="MyObjectBuilder_ConveyorSorter" Subtype="SmallRailgun" />
                 <Block Type="MyObjectBuilder_ConveyorSorter" Subtype="LargeRailgun" />
                 <Block Type="MyObjectBuilder_SmallMissileLauncher" Subtype="LargeBlockLargeCalibreGun" />
-                <Block Type="MyObjectBuilder_SmallMissileLauncherReload" Subtype="SmallBlockMediumCalibreGun" />
+				<Block Type="MyObjectBuilder_SmallMissileLauncher" Subtype="LargeBlockLargeCalibreGunType2" />
+				<Block Type="MyObjectBuilder_SmallMissileLauncherReload" Subtype="SmallBlockMediumCalibreGun" />
+				<Block Type="MyObjectBuilder_SmallMissileLauncherReload" Subtype="SmallBlockMediumCalibreGunType2" />
 				<Block Type="MyObjectBuilder_SmallMissileLauncher" Subtype="LargeFlareLauncher" />
                 <Block Type="MyObjectBuilder_SmallMissileLauncher" Subtype="SmallFlareLauncher" />
-            </Blocks>
+				<Block Type="MyObjectBuilder_SmallMissileLauncher" Subtype="LargeInsetFlareLauncher" />
+				<Block Type="MyObjectBuilder_SmallMissileLauncher" Subtype="SmallInsetFlareLauncher" />
+				<Block Type="MyObjectBuilder_SmallMissileLauncher" Subtype="LargeBlockTorpedoLauncher" />
+				<Block Type="MyObjectBuilder_SmallMissileLauncher" Subtype="SmallBlockTorpedoLauncher" />
+			</Blocks>
         </BlockVariantGroup>
 
         <BlockVariantGroup>
@@ -39,11 +46,15 @@
 				<Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="LargeMissileTurretReskin" />
                 <Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="SmallMissileTurretReskin" />
                 <Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="LargeCalibreTurret" />
-                <Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="LargeBlockMediumCalibreTurret" />
-                <Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="SmallBlockMediumCalibreTurret" />
-                <Block Type="MyObjectBuilder_InteriorTurret" Subtype="LargeInteriorTurret" />
+				<Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="LargeCalibreTurretType2" />
+				<Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="LargeBlockMediumCalibreTurret" />
+				<Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="LargeBlockMediumCalibreTurretType2" />
+				<Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="SmallBlockMediumCalibreTurret" />
+				<Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="SmallBlockMediumCalibreTurretType2" />
+				<Block Type="MyObjectBuilder_InteriorTurret" Subtype="LargeInteriorTurret" />
                 <Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="AutoCannonTurret" />
-            </Blocks>
+				<Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="AutoCannonTurretType2" />
+			</Blocks>
         </BlockVariantGroup>
 
     </BlockVariantGroups>

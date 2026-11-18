@@ -94,6 +94,7 @@ namespace CoreSystems.Platform
                         Repo.Values.Set.Overrides.Biologicals = Comp.PrimaryWeapon.System.TrackCharacters;
                         Repo.Values.Set.Overrides.LeadGroup = Comp.Structure.DefaultLeadGroup;
                         Repo.Values.Set.Overrides.UseAnyAmmo = Comp.PrimaryWeapon.System.AllowAnyAmmoDefault;
+                        Repo.Values.Set.Overrides.TargetClosest = Comp.PrimaryWeapon.System.ClosestFirst;
                     }
 
                     for (int i = 0; i < collection.Count; i++)
