@@ -152,7 +152,7 @@ namespace CoreSystems.Platform
                 var canReload = ProtoWeaponAmmo.CurrentAmmo == 0;
                 var proposedAmmo = System.AmmoTypes[ProposedAmmoId];
 
-                if (!ActiveAmmoDef.AmmoDef.Const.Reloadable)
+                if (!ActiveAmmoDef.AmmoDef.Const.Reloadable || Session.I.IsCreative)
                 {
                     if (IsShooting)
                         StopShooting(); //Forces a stop for AV purposes
