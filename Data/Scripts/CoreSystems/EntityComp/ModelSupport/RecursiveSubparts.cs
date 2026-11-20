@@ -42,7 +42,7 @@ namespace CoreSystems.Support
 
         internal void CheckSubparts()
         {
-            if (_trackedModel == Entity?.Model || Entity?.Parent == null || (bool)Entity?.MarkedForClose)
+            if (_trackedModel == Entity?.Model)
                 return;
             _trackedModel = Entity?.Model;
             _subparts.Clear();
