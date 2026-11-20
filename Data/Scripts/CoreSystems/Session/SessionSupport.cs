@@ -1724,12 +1724,12 @@ namespace CoreSystems
             VanillaCoreIds[smallLargeMissile2] = smallLargeMissile2Id;
 
             var smallAutoTurret = MyStringHash.GetOrCompute("AutoCannonTurret");
-            var smallAutoTurretId = new MyDefinitionId(typeof(MyObjectBuilder_LargeMissileTurret), "AutoCannonTurret");
+            var smallAutoTurretId = new MyDefinitionId(typeof(MyObjectBuilder_LargeGatlingTurret), "AutoCannonTurret");
             VanillaIds[smallAutoTurretId] = smallAutoTurret;
             VanillaCoreIds[smallAutoTurret] = smallAutoTurretId;
 
             var smallAutoTurret2 = MyStringHash.GetOrCompute("AutoCannonTurretType2");
-            var smallAutoTurretId2 = new MyDefinitionId(typeof(MyObjectBuilder_LargeMissileTurret), "AutoCannonTurretType2");
+            var smallAutoTurretId2 = new MyDefinitionId(typeof(MyObjectBuilder_LargeGatlingTurret), "AutoCannonTurretType2");
             VanillaIds[smallAutoTurretId2] = smallAutoTurret2;
             VanillaCoreIds[smallAutoTurret2] = smallAutoTurretId2;
 

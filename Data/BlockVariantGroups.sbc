@@ -52,8 +52,8 @@
 				<Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="SmallBlockMediumCalibreTurret" />
 				<Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="SmallBlockMediumCalibreTurretType2" />
 				<Block Type="MyObjectBuilder_InteriorTurret" Subtype="LargeInteriorTurret" />
-                <Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="AutoCannonTurret" />
-				<Block Type="MyObjectBuilder_LargeMissileTurret" Subtype="AutoCannonTurretType2" />
+                <Block Type="MyObjectBuilder_LargeGatlingTurret" Subtype="AutoCannonTurret" />
+				<Block Type="MyObjectBuilder_LargeGatlingTurret" Subtype="AutoCannonTurretType2" />
 			</Blocks>
         </BlockVariantGroup>
 
