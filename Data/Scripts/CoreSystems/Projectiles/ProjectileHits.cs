@@ -1148,7 +1148,7 @@ namespace CoreSystems.Projectiles
                 }
 
                 IHitInfo hit;
-                if (s.Physics.CastRay(p.Beam.From, p.Beam.To, out hit, CollisionLayers.StaticCollisionLayer, false) && hit != null)
+                if (s.Physics.CastRay(p.Beam.From, p.Beam.To, out hit, CollisionLayers.StaticCollisionLayer, false) && hit != null && hit.HitEntity != w.Comp.CoreEntity.Parent)
                     voxelHit = hit.Position;
                 else if (PointInsideVoxel(voxel, s.TmpStorage, p.Beam.From))
                     voxelHit = p.Beam.From;
