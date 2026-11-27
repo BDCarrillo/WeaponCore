@@ -657,7 +657,8 @@ namespace CoreSystems
             for (int i = validType ? 12 : 0; i < controls.Count; i++) {
 
                 var c = controls[i];
-                if (session.AlteredControls.Contains(c)) continue;
+                if (session.AlteredControls.Contains(c) || session.CustomControls.Contains(c))
+                    continue;
 
                 if (!_visibleControls.Contains(c.Id))
                 {
